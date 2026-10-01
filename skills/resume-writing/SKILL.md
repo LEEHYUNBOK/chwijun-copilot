@@ -33,7 +33,7 @@ description: Use when writing, revising, reviewing, or critiquing a resume (이�
 필요한 재료:
 
 - 지원 대상 (회사 / 직무 / 공고 원문)
-- 기존 이력서·경력기술서 (있으면 반드시 먼저 읽는다). 없으면 경력 위키의 `<wiki_path>/프로필.md`와 `문서/`가 1차 재료다 (`~/.claude/chwijun-copilot.json`의 wiki_path)
+- 기존 이력서·경력기술서 (있으면 반드시 먼저 읽는다). 없으면 경력 위키의 `<wiki_path>/프로필.md`와 `문서/`가 1차 재료다 (`~/.claude/chwijun-copilot.json`의 wiki_path). 설정 파일도 기존 이력서도 없으면 `/chwijun-copilot:wiki-bootstrap` 온보딩을 먼저 안내한다
 - 각 프로젝트의 **문제 상황**, **그때 세운 가설과 근거**, **내가 내린 결정**, **결과 숫자**
 
 셋 중 하나라도 비어 있으면 그 항목에 대해 질문한다. 한 번에 하나씩.

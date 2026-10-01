@@ -51,6 +51,16 @@ def call(method, path, payload=None):
         sys.exit(f"Notion API {e.code}: {e.read().decode('utf-8', 'replace')[:500]}")
 
 
+def require_props(schema):
+    """DB 스키마에 필수 속성이 다 있는지 검사. 없으면 뭘 만들어야 하는지 말하고 종료."""
+    missing = [k for k in ("회사", "상태", "지원 링크") if k not in schema]
+    if missing:
+        sys.exit(f"지원현황 DB에 필수 속성이 없다: {' · '.join(missing)}. "
+                 f"필요: 이름(title) · 회사(multi_select) · 상태(select/status) · "
+                 f"지원 링크(url/rich_text) · 마감일(date). "
+                 f"현재 속성: {', '.join(schema) or '(없음)'}")
+
+
 def rich(text):
     """**굵게**와 [텍스트](URL) 링크만 처리하는 최소 마크다운 인라인 파서."""
     parts = []
@@ -116,6 +126,7 @@ def main():
     a = ap.parse_args()
 
     schema = call("GET", f"/data_sources/{a.ds}")["properties"]
+    require_props(schema)
     options = [o["name"] for o in schema["회사"]["multi_select"]["options"]]
     status_type = schema["상태"]["type"]  # select 또는 status — 스키마에서 읽는다
     link_type = schema["지원 링크"]["type"]  # url 또는 rich_text — 스키마에서 읽는다

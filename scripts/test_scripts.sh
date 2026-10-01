@@ -25,4 +25,14 @@ python3 check_voice.py --banned /tmp/없는파일.txt /tmp/cv_ok.md >/dev/null
 python3 track_add.py --title t --company c --url u >/dev/null 2>&1
 [ $? -eq 2 ] || { echo "FAIL: track_add --ds 누락이 exit 2가 아님"; fail=1; }
 
+# track_add: 필수 속성 빠진 스키마 → 어떤 속성이 없는지 말하고 SystemExit
+python3 -c "
+import sys, track_add
+try:
+    track_add.require_props({'이름': {}, '상태': {}})
+except SystemExit as e:
+    msg = str(e)
+    sys.exit(0 if ('회사' in msg and '지원 링크' in msg) else 1)
+sys.exit(1)" || { echo "FAIL: require_props가 누락 속성을 안내하지 않음"; fail=1; }
+
 [ $fail -eq 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
