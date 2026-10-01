@@ -36,6 +36,9 @@ def check(text, banned):
 def main(argv):
     banned_path = None
     if argv[:1] == ['--banned']:
+        if len(argv) < 2:
+            print(__doc__)
+            return 2
         banned_path, argv = argv[1], argv[2:]
     if not argv:
         print(__doc__)
@@ -43,7 +46,12 @@ def main(argv):
     banned = load_banned(banned_path)
     fail = 0
     for p in argv:
-        probs = check(open(p, encoding='utf-8').read(), banned)
+        try:
+            text = open(p, encoding='utf-8').read()
+        except OSError as e:
+            print(f"❌ {p}: 열 수 없음 ({e.strerror})")
+            return 2
+        probs = check(text, banned)
         print(('❌ ' if probs else '✅ ') + p.rsplit('/', 1)[-1])
         for x in probs:
             print('   - ' + x)

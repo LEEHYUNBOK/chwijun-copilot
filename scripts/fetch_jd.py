@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """채용공고 본문 수집기 — job-fit/job-scan의 ATS별 curl 조합을 코드로 고정.
 
-사용: python3 도구/fetch_jd.py <공고URL>
+사용: python3 scripts/fetch_jd.py <공고URL>
 출력: 마크다운(메타 헤더 + 본문). 못 가져오면 retrieved=false와 이유를 출력하고 exit 1.
 
 지원 ATS: 원티드 · 사람인(쿠키 절차 포함) · 자소설닷컴 · LG Careers ·
@@ -241,7 +241,8 @@ def main():
     fn = next((f for pat, f in ROUTES if re.search(pat, url)), generic)
     try:
         fn(url)
-    except (urllib.error.URLError, KeyError, AttributeError, json.JSONDecodeError) as e:
+    except (urllib.error.URLError, OSError, KeyError, AttributeError, IndexError,
+            TypeError, ValueError, json.JSONDecodeError) as e:
         fail(url, f"{type(e).__name__}: {e}")
 
 

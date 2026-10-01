@@ -19,6 +19,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.request
 
 API = "https://api.notion.com/v1"

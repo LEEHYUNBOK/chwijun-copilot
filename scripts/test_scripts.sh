@@ -21,6 +21,14 @@ echo "데이터를 정제하고 모델을 검증했다." > /tmp/cv_ok.md
 python3 check_voice.py --banned /tmp/없는파일.txt /tmp/cv_ok.md >/dev/null
 [ $? -eq 0 ] || { echo "FAIL: clean fixture"; fail=1; }
 
+# check_voice: --banned만 주고 파일 누락 → exit 2 (트레이스백 아님)
+python3 check_voice.py --banned 2>/dev/null
+[ $? -eq 2 ] || { echo "FAIL: --banned 단독이 exit 2가 아님"; fail=1; }
+
+# check_voice: 대상 파일이 없음 → exit 2 (트레이스백 아님)
+python3 check_voice.py /tmp/cv_없는파일_$$.md >/dev/null 2>&1
+[ $? -eq 2 ] || { echo "FAIL: 없는 대상 파일이 exit 2가 아님"; fail=1; }
+
 # track_add: --ds 누락 → exit 2
 python3 track_add.py --title t --company c --url u >/dev/null 2>&1
 [ $? -eq 2 ] || { echo "FAIL: track_add --ds 누락이 exit 2가 아님"; fail=1; }

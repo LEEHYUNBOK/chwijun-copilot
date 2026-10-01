@@ -5,7 +5,8 @@
       "name": "예시회사",
       "ats": "greenhouse",
       "slug": "example",
-      "_ats종류": "ashby | greenhouse | greetinghr | toss | saramin_company | custom"
+      "_ats종류": "ashby | greenhouse | greetinghr | toss | saramin_company | custom",
+      "_선택키": "saramin_company·greetinghr(임베드형)는 list_url(회사 채용페이지 목록 URL) 필수. 자동 스캔에서 빼려면 list_scan: false"
     }
   ],
   "boards": [
