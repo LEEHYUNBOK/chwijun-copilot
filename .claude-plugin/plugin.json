@@ -1,0 +1,7 @@
+{
+  "name": "chwijun-copilot",
+  "displayName": "취준 코파일럿",
+  "description": "한국 취업시장용 구직 코파일럿 — 경력 위키 온보딩, 공고 적합도 분석, 관심회사 스캔, 이력서·자소서 규칙, 지원 팔로업, 탈락 패턴 분석",
+  "version": "0.1.0",
+  "author": { "name": "Hyunbok Lee" }
+}

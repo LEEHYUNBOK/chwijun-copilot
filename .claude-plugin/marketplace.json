@@ -1,0 +1,12 @@
+{
+  "name": "chwijun-copilot",
+  "description": "취준 코파일럿 — 한국 취업시장용 구직 자동화 플러그인 마켓플레이스",
+  "owner": { "name": "Hyunbok Lee" },
+  "plugins": [
+    {
+      "name": "chwijun-copilot",
+      "source": "./",
+      "description": "한국 취업시장용 구직 코파일럿"
+    }
+  ]
+}
