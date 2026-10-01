@@ -55,7 +55,7 @@ python3 "<스킬 베이스 디렉터리>/../../scripts/fetch_jd.py" <URL>
 
 설정의 `tracker`가 기준이다.
 
-- `local`(기본): `<wiki_path>/지원현황.md` 맨 위(`# 지원 현황` 헤더 바로 아래)에 `## [회사] 직무명` 섹션을 추가한다. 형식은 기존 섹션과 동일 — 상태·링크·마감·등록일 + `### 적합도 분석` 본문.
+- `local`(기본): `<wiki_path>/지원현황.md` 맨 위(`# 지원 현황` 헤더 바로 아래)에 `## [회사] 직무명` 섹션을 추가한다. 형식은 기존 섹션과 동일 — `- 상태:` `- 링크:` `- 마감:` `- 등록: YYYY-MM-DD · 지원: -` 네 줄 + `### 적합도 분석` 본문 (templates/지원현황.md와 글자 그대로 같은 필드명).
 - `notion`: `python3 "<스킬 베이스 디렉터리>/../../scripts/track_add.py" --ds <notion_ds_id> --title <직무명> --company <회사> --url <URL> [--deadline YYYY-MM-DD] [--body 본문.md]` (NOTION_TOKEN 필요). 실패하면 local로 기록하고 그 사실을 보고한다.
 
 **본문(적합도 분석) 템플릿:**
