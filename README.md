@@ -7,7 +7,7 @@
 마켓플레이스로:
 
 ```bash
-/plugin marketplace add <이 저장소 GitHub 주소>
+/plugin marketplace add LEEHYUNBOK/chwijun-copilot
 /plugin install chwijun-copilot
 ```
 
@@ -66,4 +66,4 @@ claude --plugin-dir /path/to/chwijun-copilot
 
 ## 라이선스
 
-미정.
+MIT
