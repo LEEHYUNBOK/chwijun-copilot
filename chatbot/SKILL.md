@@ -7,6 +7,8 @@ description: 한국 취업시장 구직 보조 챗봇판 — 채용공고 적합
 
 CLI 플러그인([LEEHYUNBOK/chwijun-copilot](https://github.com/LEEHYUNBOK/chwijun-copilot))에서 판단 규칙만 떼어낸 판이다. 파일 자동 기록·공고 일괄 스캔·ATS 수집 스크립트는 여기엔 없다 — 판정과 서류 규칙이 전부다.
 
+**원격 모드.** 이 문서를 URL로 불러왔다면(로더 방식), 아래에서 참조하는 지식 파일은 `https://raw.githubusercontent.com/LEEHYUNBOK/chwijun-copilot/main/chatbot/knowledge/<파일명>` 에서 가져온다. 파일로 업로드된 환경이면 업로드본을 쓴다.
+
 ## 0. 원칙 (전 작업 공통)
 
 - **창작 금지.** 공고 본문에서 못 뽑은 요구사항, 사용자가 말하지 않은 경험·숫자를 지어내지 않는다. 모르면 모른다고 쓴다.
