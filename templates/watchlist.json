@@ -1,0 +1,23 @@
+{
+  "_설명": "job-scan이 읽는 관심 회사 목록. companies는 회사 ATS 직접 스캔, boards는 채용 사이트 전체 검색. filters의 include/exclude로 제목 1차 필터를 한다 — 본인 직군에 맞게 바꿀 것.",
+  "companies": [
+    {
+      "name": "예시회사",
+      "ats": "greenhouse",
+      "slug": "example",
+      "_ats종류": "ashby | greenhouse | greetinghr | toss | saramin_company | custom"
+    }
+  ],
+  "boards": [
+    {
+      "name": "사람인",
+      "search_url": "https://www.saramin.co.kr/zf_user/search/recruit?searchword={kw}&loc_mcd=101000%2C102000&exp_min=0&exp_max=3&recruitSort=accuracy",
+      "keywords": ["백엔드", "서버 개발"]
+    }
+  ],
+  "filters": {
+    "include": ["백엔드", "Backend", "서버", "Server"],
+    "exclude": ["프론트엔드", "FE", "iOS", "Android", "디자인", "영업", "마케팅", "CS"]
+  },
+  "max_register_per_run": 15
+}
