@@ -28,7 +28,11 @@
   .page-break { clear: both; break-before: page; }
 
   .job { margin-bottom: 10px; }
-  .job .row { display: flex; justify-content: space-between; align-items: baseline; }
+  /* 제목이 길면 기간 span이 통째로 다음 줄로 — 글자 중간 꺾임 방지 */
+  .job .row { display: flex; flex-wrap: wrap; column-gap: 8px;
+              justify-content: space-between; align-items: baseline; }
+  .job .row h3 { flex: 1 1 auto; }
+  .job .row .sub { white-space: nowrap; }
   .tag { font-weight: 600; color: var(--accent); }
 </style>
 </head>
