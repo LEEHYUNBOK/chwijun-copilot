@@ -87,6 +87,8 @@ def md_to_blocks(md):
             continue
         if s == "---":
             blocks.append({"type": "divider", "divider": {}})
+        elif s.startswith("#### "):  # Notion은 h4가 없다 — job-fit 본문의 #### 는 h3로
+            blocks.append({"type": "heading_3", "heading_3": {"rich_text": rich(s[5:])}})
         elif s.startswith("### "):
             blocks.append({"type": "heading_3", "heading_3": {"rich_text": rich(s[4:])}})
         elif s.startswith("## "):
@@ -102,10 +104,11 @@ def md_to_blocks(md):
 
 
 def selftest():
-    b = md_to_blocks("## 적합도 상\n**레벨** 경력\n---\n- 강점 하나\n> 출처: api")
-    assert [x["type"] for x in b] == ["heading_2", "paragraph", "divider",
+    b = md_to_blocks("## 적합도 상\n#### 겹치는 강점\n**레벨** 경력\n---\n- 강점 하나\n> 출처: api")
+    assert [x["type"] for x in b] == ["heading_2", "heading_3", "paragraph", "divider",
                                      "bulleted_list_item", "quote"]
-    assert b[1]["paragraph"]["rich_text"][0]["annotations"]["bold"] is True
+    assert b[1]["heading_3"]["rich_text"][0]["text"]["content"] == "겹치는 강점"
+    assert b[2]["paragraph"]["rich_text"][0]["annotations"]["bold"] is True
     r = rich("[출처] [공고](https://a.com/o/1) · 메일")
     assert [x["text"]["content"] for x in r] == ["[출처] ", "공고", " · 메일"]
     assert r[1]["text"]["link"]["url"] == "https://a.com/o/1"
