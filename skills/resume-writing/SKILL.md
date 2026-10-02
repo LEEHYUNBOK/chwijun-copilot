@@ -15,6 +15,7 @@ description: Use when writing, revising, reviewing, or critiquing a resume (이�
 | 요청 | 읽을 파일 |
 |---|---|
 | 이력서·경력기술서 작성/수정/검토 | `rule.md` |
+| HTML 이력서·경력기술서 생성 / PDF 추출 | `rule.md` + `references/html-export.md` (templates/이력서.html·경력기술서.html 채움 → scripts/export_pdf.sh) |
 | 포트폴리오 (프로젝트 상세 서술) | `rule.md` + `references/portfolio.md` |
 | 자기소개서 (문항형) | `rule.md` + `references/cover-letter.md` + `references/ai-detection.md` (자소서는 산문이라 문체가 그대로 드러난다 — 인간화를 나중에 붙이지 말고 처음부터 읽는다) |
 | 특정 공고에 맞춰 커스터마이징 | `rule.md` + `references/jd-tailoring.md` |

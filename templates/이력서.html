@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>{{이름}} — 이력서</title>
+<style>
+  /* 인쇄 규약: A4 세로, 여백은 @page에 고정(브라우저·OS 편차 차단) */
+  @page { size: A4; margin: 14mm 15mm; }
+  :root { --ink:#1a1a1a; --sub:#555; --line:#d8d8d8; --accent:#2a5aa0; --ind:52mm; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Apple SD Gothic Neo","Malgun Gothic",sans-serif; color: var(--ink);
+         font-size: 10pt; line-height: 1.55; }
+  h1 { font-size: 19pt; letter-spacing: -.5px; }
+  h2 { font-size: 11.5pt; color: var(--accent); border-bottom: 1.2px solid var(--line);
+       padding-bottom: 2px; margin: 13px 0 7px; }
+  h3 { font-size: 10.5pt; margin: 9px 0 3px; }
+  ul { padding-left: 15px; } li { margin: 2px 0; }
+  .sub { color: var(--sub); font-size: 9pt; }
+  .meta { color: var(--sub); font-size: 9.5pt; margin-top: 3px; }
+
+  /* 사이드바는 float — line box만 밀기 때문에 1페이지에서만 쓴다.
+     2페이지 이후 내용은 .after-sidebar 안에 두고 --ind로 직접 들여쓴다.
+     (표·flex·배경박스는 float이 못 밀므로 절대 사이드바 옆에 두지 않는다) */
+  .sidebar { float: left; width: 46mm; padding-right: 6mm; }
+  .sidebar section { margin-bottom: 11px; }
+  .sidebar h2 { margin-top: 0; }
+  .main-1p { margin-left: var(--ind); }
+  .page-break { clear: both; break-before: page; }
+
+  .job { margin-bottom: 10px; }
+  .job .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .tag { font-weight: 600; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ===== 1페이지: 사이드바 + 본문 ===== -->
+<header style="margin-bottom:12px">
+  <h1>{{이름}}</h1>
+  <div class="meta">{{직군 — 예: 백엔드 엔지니어}} · {{총 연차}}</div>
+</header>
+
+<aside class="sidebar">
+  <section>
+    <h2>연락처</h2>
+    <div class="sub">{{이메일}}<br>{{전화}}<br>{{거주 지역(시·구까지)}}</div>
+  </section>
+  <section>
+    <h2>주력 스킬</h2>
+    <ul class="sub">
+      <!-- 프로필.md 「주력 스킬」에서. 기간·맥락 없는 나열 금지 -->
+      <li>{{스킬: 기간·한 줄 맥락}}</li>
+      <li>{{스킬: 기간·한 줄 맥락}}</li>
+    </ul>
+  </section>
+  <section>
+    <h2>학력·자격</h2>
+    <div class="sub">{{학교·전공·기간}}<br>{{자격증(없으면 섹션 삭제)}}</div>
+  </section>
+</aside>
+
+<div class="main-1p">
+  <h2>요약</h2>
+  <p>{{프로필.md 「한 줄」 기반 2~3문장. 표기 규칙 준수 — 과장·무근거 수치 금지}}</p>
+
+  <h2>경력</h2>
+  <div class="job">
+    <div class="row"><h3>{{회사}} — {{직무}}</h3><span class="sub">{{YYYY.MM ~ YYYY.MM (N년 N개월) · 고용형태}}</span></div>
+    <div class="sub">{{담당 범위 한 줄}}</div>
+  </div>
+
+  <h2>대표 작업</h2>
+  <!-- 항목 구조는 문제/행동/결과 고정. 결과는 before→after 수치, 기준점·단위 명시 -->
+  <div class="job">
+    <h3>{{작업 제목 1}}</h3>
+    <ul>
+      <li><span class="tag">문제</span> {{무엇이 왜 문제였나}}</li>
+      <li><span class="tag">행동</span> {{내가 한 일 — 수행 범위를 정확히}}</li>
+      <li><span class="tag">결과</span> {{결과 KPI — 기준점·단위 포함}}</li>
+    </ul>
+  </div>
+  <div class="job">
+    <h3>{{작업 제목 2}}</h3>
+    <ul>
+      <li><span class="tag">문제</span> {{...}}</li>
+      <li><span class="tag">행동</span> {{...}}</li>
+      <li><span class="tag">결과</span> {{...}}</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== 2페이지: 사이드바 없음, --ind 들여쓰기 유지 ===== -->
+<div class="page-break"></div>
+<div style="margin-left:var(--ind)">
+  <h2>대표 작업 (계속)</h2>
+  <div class="job">
+    <h3>{{작업 제목 3 (없으면 섹션 삭제)}}</h3>
+    <ul>
+      <li><span class="tag">문제</span> {{...}}</li>
+      <li><span class="tag">행동</span> {{...}}</li>
+      <li><span class="tag">결과</span> {{...}}</li>
+    </ul>
+  </div>
+
+  <h2>활동·기타</h2>
+  <ul>
+    <li>{{커뮤니티·수상·사이드 프로젝트 등 (없으면 섹션 삭제)}}</li>
+  </ul>
+</div>
+
+</body>
+</html>
