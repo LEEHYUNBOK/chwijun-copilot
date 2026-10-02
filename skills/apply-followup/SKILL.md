@@ -19,7 +19,7 @@ description: Use when 지원해놓고 무응답인 곳을 점검하거나 팔로
 
 ## 2. 조회
 
-트래커를 전수 조회한다 — `tracker`가 local이면 `<wiki_path>/지원현황.md`의 전 섹션, notion이면 설정의 DB.
+트래커를 전수 조회한다 — `tracker`가 local이면 `<wiki_path>/지원현황.md`의 전 섹션, notion이면 `track_add.py --ds <notion_ds_id> --list`(JSON: 제목·회사·상태·링크·마감일·등록일).
 
 - **팔로업 대상 상태**: 지원완료 · 코테 중 · 서류통과 · 면접 (제출 후 대기)
 - **대상 아님**: 지원 전(미제출 백로그), 지원 실패(마감 경과·미제출 정리), 탈락, 최종합격

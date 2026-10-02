@@ -103,6 +103,51 @@ def md_to_blocks(md):
     return blocks
 
 
+def page_to_record(page):
+    """Notion 페이지 JSON → 트래커 레코드. 상태(select/status)·링크(url/rich_text) 양쪽 분기."""
+    p = page["properties"]
+
+    def first(prop, key):
+        items = prop.get(key) or []
+        return items[0] if items else None
+
+    status_prop = p.get("상태", {})
+    status = (status_prop.get(status_prop.get("type")) or {}).get("name", "") \
+        if status_prop.get("type") in ("select", "status") else ""
+    link_prop = p.get("지원 링크", {})
+    if link_prop.get("type") == "url":
+        link = link_prop.get("url") or ""
+    else:
+        rt = first(link_prop, "rich_text")
+        link = rt["plain_text"] if rt else ""
+    title_rt = first(p.get("이름", {}), "title")
+    company = first(p.get("회사", {}), "multi_select")
+    date = p.get("마감일", {}).get("date") or {}
+    return {
+        "제목": title_rt["plain_text"] if title_rt else "",
+        "회사": company["name"] if company else "",
+        "상태": status,
+        "링크": link,
+        "마감일": date.get("start", "") or "",
+        "등록일": page.get("created_time", "")[:10],
+        "노션": page.get("url", ""),
+    }
+
+
+def list_rows(ds):
+    """DB 전수 조회 (페이지네이션) → 레코드 리스트."""
+    records, cursor = [], None
+    while True:
+        payload = {"page_size": 100}
+        if cursor:
+            payload["start_cursor"] = cursor
+        resp = call("POST", f"/data_sources/{ds}/query", payload)
+        records += [page_to_record(pg) for pg in resp.get("results", [])]
+        if not resp.get("has_more"):
+            return records
+        cursor = resp["next_cursor"]
+
+
 def selftest():
     b = md_to_blocks("## 적합도 상\n#### 겹치는 강점\n**레벨** 경력\n---\n- 강점 하나\n> 출처: api")
     assert [x["type"] for x in b] == ["heading_2", "heading_3", "paragraph", "divider",
@@ -113,6 +158,33 @@ def selftest():
     assert [x["text"]["content"] for x in r] == ["[출처] ", "공고", " · 메일"]
     assert r[1]["text"]["link"]["url"] == "https://a.com/o/1"
     print("md_to_blocks ok")
+    # --list: 페이지 JSON → 레코드 (url/rich_text·select/status 양쪽 분기)
+    page_url_select = {
+        "url": "https://notion.so/p1", "created_time": "2026-10-01T09:00:00.000Z",
+        "properties": {
+            "이름": {"type": "title", "title": [{"plain_text": "[다라] 백엔드"}]},
+            "회사": {"type": "multi_select", "multi_select": [{"name": "다라커머스"}]},
+            "상태": {"type": "select", "select": {"name": "지원 전"}},
+            "지원 링크": {"type": "url", "url": "https://a.com/o/1"},
+            "마감일": {"type": "date", "date": {"start": "2026-10-15"}},
+        }}
+    page_rt_status = {
+        "url": "https://notion.so/p2", "created_time": "2026-09-20T09:00:00.000Z",
+        "properties": {
+            "이름": {"type": "title", "title": []},
+            "회사": {"type": "multi_select", "multi_select": []},
+            "상태": {"type": "status", "status": None},
+            "지원 링크": {"type": "rich_text",
+                       "rich_text": [{"plain_text": "https://b.com/o/2"}]},
+            "마감일": {"type": "date", "date": None},
+        }}
+    r1 = page_to_record(page_url_select)
+    assert r1 == {"제목": "[다라] 백엔드", "회사": "다라커머스", "상태": "지원 전",
+                  "링크": "https://a.com/o/1", "마감일": "2026-10-15",
+                  "등록일": "2026-10-01", "노션": "https://notion.so/p1"}
+    r2 = page_to_record(page_rt_status)
+    assert r2["링크"] == "https://b.com/o/2" and r2["상태"] == "" and r2["마감일"] == ""
+    print("page_to_record ok")
 
 
 def main():
@@ -120,14 +192,22 @@ def main():
         return selftest()
     ap = argparse.ArgumentParser()
     ap.add_argument("--ds", required=True, help="지원현황 DB의 data_source id")
-    ap.add_argument("--title", required=True)
-    ap.add_argument("--company", required=True)
-    ap.add_argument("--url", required=True)
+    ap.add_argument("--list", action="store_true",
+                    help="전수 조회만 하고 JSON 출력 (dedup·팔로업·패턴 분석용)")
+    ap.add_argument("--title")
+    ap.add_argument("--company")
+    ap.add_argument("--url")
     ap.add_argument("--deadline")
     ap.add_argument("--status", default="지원 전")
     ap.add_argument("--body", help="본문 마크다운 파일 (job-fit 템플릿)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+
+    if a.list:
+        print(json.dumps(list_rows(a.ds), ensure_ascii=False, indent=1))
+        return
+    if not (a.title and a.company and a.url):
+        ap.error("--title/--company/--url은 행 추가에 필수 (조회만 하려면 --list)")
 
     schema = call("GET", f"/data_sources/{a.ds}")["properties"]
     require_props(schema)

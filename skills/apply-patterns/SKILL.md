@@ -19,7 +19,7 @@ description: Use when 지원 결과의 패턴 분석을 원할 때 — "계속 �
 
 ## 2. 재료 수집
 
-1. 트래커 전수 조회 (상태·마감일·등록일) — `tracker`가 local이면 `<wiki_path>/지원현황.md`, notion이면 설정의 DB
+1. 트래커 전수 조회 (상태·마감일·등록일) — `tracker`가 local이면 `<wiki_path>/지원현황.md`, notion이면 `track_add.py --ds <notion_ds_id> --list`
 2. 탈락·지원완료 행의 본문 — job-fit이 남긴 적합도 점수·결정적 갭·제출물 기록
 3. `<wiki_path>/프로필.md` — 요구사항 불일치(스택·연차·도메인) 대조 기준
 4. `<wiki_path>/문서/`의 면접 회고 문서(있으면) — 어느 단계·어떤 질문에서 막히는지, 승패보다 해상도 높은 신호

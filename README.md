@@ -125,7 +125,7 @@ E2E 검증에서 나온 실제 출력이다. 서비스기획자 테스트 프로
 ## 로드맵
 
 - [ ] 깨끗한 머신에서 자연어 라우팅 검증
-- [ ] `track_add.py --list` — Notion 트래커 읽기(중복 제거·전수 조회)
+- [x] `track_add.py --list` — Notion 트래커 읽기(중복 제거·전수 조회)
 - [ ] 풀 퍼널 스킬 — interview-practice · offer-comparison · salary-negotiation
 
 ## 라이선스

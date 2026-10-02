@@ -33,6 +33,13 @@ python3 check_voice.py /tmp/cv_없는파일_$$.md >/dev/null 2>&1
 python3 track_add.py --title t --company c --url u >/dev/null 2>&1
 [ $? -eq 2 ] || { echo "FAIL: track_add --ds 누락이 exit 2가 아님"; fail=1; }
 
+# track_add: --list 아닌데 title/company/url 누락 → exit 2
+python3 track_add.py --ds x --title t >/dev/null 2>&1
+[ $? -eq 2 ] || { echo "FAIL: track_add 행 추가 필수 인자 누락이 exit 2가 아님"; fail=1; }
+
+# track_add: 셀프테스트 (md_to_blocks + page_to_record)
+python3 track_add.py --selftest >/dev/null || { echo "FAIL: track_add --selftest"; fail=1; }
+
 # track_add: 필수 속성 빠진 스키마 → 어떤 속성이 없는지 말하고 SystemExit
 python3 -c "
 import sys, track_add

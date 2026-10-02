@@ -24,7 +24,7 @@ watchlist 회사들의 ATS를 훑어 **새로 올라온 공고** 중 사용자 �
 - 설정: `~/.claude/chwijun-copilot.json`을 읽는다. 없으면 `/chwijun-copilot:wiki-bootstrap` 온보딩을 안내하고 중단한다.
 - watchlist: `<wiki_path>/watchlist.json`. 없으면 플러그인의 `templates/watchlist.json`을 복사해 주고 직군에 맞게 채우라고 안내한 뒤 중단한다.
 - 프로필: `<wiki_path>/프로필.md` (job-fit과 동일 기준)
-- 기존 등록분(dedup 셋): `tracker`가 local이면 `<wiki_path>/지원현황.md`의 `- 링크:` 줄 전수, notion이면 설정의 DB에서 `지원 링크` 목록 조회.
+- 기존 등록분(dedup 셋): `tracker`가 local이면 `<wiki_path>/지원현황.md`의 `- 링크:` 줄 전수, notion이면 `track_add.py --ds <notion_ds_id> --list`로 전수 조회해 `링크` 필드를 쓴다.
 - 인자로 특정 회사가 지정되면 그 회사만.
 
 ## 2. 회사별 공고 목록 수집 (ATS별)
@@ -35,10 +35,10 @@ Bash + curl로 목록을 받고 제목으로 1차 필터한다. **상세는 필�
 |---|---|---|
 | ashby | `curl -s https://api.ashbyhq.com/posting-api/job-board/<slug>` | `jobs[]`: title · location · jobUrl · descriptionPlain |
 | greenhouse | `curl -s https://boards-api.greenhouse.io/v1/boards/<slug>/jobs` | `jobs[]`: title · location.name · absolute_url · id (상세: `.../jobs/<id>`) |
-| greetinghr (호스팅) | `curl -sL https://<slug>.career.greetinghr.com/ko/main` → `<script id="__NEXT_DATA__">` → queries 중 `["openings"]` | openingId · title · careerInfo. 상세: `/ko/o/<id>` |
-| greetinghr (임베드) | `/ko`가 404면 호스팅 랜딩이 없는 것(자체 사이트 임베드). watchlist의 `list_url`(회사 자체 채용페이지)을 받아 HTML에서 `/ko/o/(\d+)` 링크로 openingId·title 열거 | 상세는 동일하게 greetinghr `/ko/o/<id>` __NEXT_DATA__ getOpeningById |
+| greetinghr (호스팅) | `curl -sL https://<slug>.career.greetinghr.com/ko/` → `<script id="__NEXT_DATA__">` → queries 중 `["openings"]` (`/ko/main`은 404 — 쓰지 않는다) | openingId · title · dueDate. 상세: `/ko/o/<id>` |
+| greetinghr (임베드) | `/ko/`가 404면 slug 오타이거나 호스팅 랜딩이 없는 것 — 둘은 404로 구분되지 않으니 slug부터 재확인하고, 맞는데도 404면 watchlist의 `list_url`(회사 자체 채용페이지)을 받아 HTML에서 `/ko/o/(\d+)` 링크로 openingId·title 열거 | 상세는 동일하게 greetinghr `/ko/o/<id>` __NEXT_DATA__ getOpeningById |
 | toss | `GET api-public.toss.im/api/v3/ipd-eggnog/career/jobs` → `success` 내 job 배열 | 각 job: title · company_name · 자회사(metadata name에 "자회사/소속") · location.name · absolute_url(`?gh_jid=`) · application_deadline. 상세: `.../career/jobs/{gh_jid}` → `success.content`(HTML). 연차는 제목·본문에서 |
-| saramin_company | `curl -sL -A "<브라우저 UA>" <list_url>` → HTML에서 `rec_idx=(\d+)` 정규식으로 열거 | 상세: `python3 "<스킬 베이스 디렉터리>/../../scripts/fetch_jd.py" "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=<id>"` — 쿠키 절차·og 메타(경력·마감일) 추출 내장. curl로 view-detail을 직접 치지 않는다(쿠키 없으면 타 공고 본문이 온다). **⚠️ 사람인은 발췌본이다** — 자체 ATS가 있는 회사는 반드시 그쪽을 정본으로 쓴다 |
+| saramin_company | `curl -sL -A "<브라우저 UA>" <list_url>` → HTML에서 `rec_idx=(\d+)` 정규식으로 열거. list_url은 `company-info/view-inner-recruit?csn=<csn>` 형태를 쓴다(`company-info/view`는 rec_idx가 안 나온다) | 상세: `python3 "<스킬 베이스 디렉터리>/../../scripts/fetch_jd.py" "https://www.saramin.co.kr/zf_user/jobs/relay/view?rec_idx=<id>"` — 쿠키 절차·og 메타(경력·마감일) 추출 내장. curl로 view-detail을 직접 치지 않는다(쿠키 없으면 타 공고 본문이 온다). **⚠️ 사람인은 발췌본이다** — 자체 ATS가 있는 회사는 반드시 그쪽을 정본으로 쓴다 |
 | custom / list_scan:false | 자동화 불가 | 목록 스킵하되 **보고에 "수동 대상"으로 명시**(조용히 빠뜨리지 않음). 사용자가 개별 URL 주면 job-fit로 |
 
 **제목 1차 필터** — watchlist.json `filters.include` 중 하나 포함 AND `filters.exclude` 미포함 AND 희망 근무지. `Senior/Staff/Lead/Principal/시니어`는 버리지 말고 남겨서 분석 단계에서 판정한다(연차 정보가 제목에만 없을 수 있음).
