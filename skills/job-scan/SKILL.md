@@ -22,7 +22,7 @@ watchlist 회사들의 ATS를 훑어 **새로 올라온 공고** 중 사용자 �
 ## 1. 준비
 
 - 설정: `~/.claude/chwijun-copilot.json`을 읽는다. 없으면 `/chwijun-copilot:wiki-bootstrap` 온보딩을 안내하고 중단한다.
-- watchlist: `<wiki_path>/watchlist.json`. 없으면 플러그인의 `templates/watchlist.json`을 복사해 주고 직군에 맞게 채우라고 안내한 뒤 중단한다.
+- watchlist: `<wiki_path>/watchlist.json`. 없으면 플러그인의 `templates/watchlist.json`을 복사해 주고 직군에 맞게 채우라고 안내한 뒤 중단한다. **깨진 JSON이면 오류 위치를 진단해 보여주고 중단한다** — 일부 회사가 읽혔어도 그걸로 스캔을 강행하지 않는다. filters의 include 키워드도 임의로 넓히지 않는다(동의어 추가는 사용자 확인 후).
 - 프로필: `<wiki_path>/프로필.md` (job-fit과 동일 기준)
 - 기존 등록분(dedup 셋): `tracker`가 local이면 `<wiki_path>/지원현황.md`의 `- 링크:` 줄 전수, notion이면 `track_add.py --ds <notion_ds_id> --list`로 전수 조회해 `링크` 필드를 쓴다.
 - 인자로 특정 회사가 지정되면 그 회사만.
