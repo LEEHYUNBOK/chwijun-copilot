@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: rule-no-profile
+context:
+  # 설정은 있고 프로필.md는 없는 상태 — job-fit §1 프로필 부재 명세의 회귀 재현
+  scaffold_script: scaffold.sh

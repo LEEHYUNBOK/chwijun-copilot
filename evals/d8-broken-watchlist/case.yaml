@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: d8-broken-watchlist
+context:
+  # D-8 회귀: watchlist가 깨진 JSON일 때 진단 후 중단해야 함 (추측 스캔·필터 확장·등록 금지)
+  scaffold_script: scaffold.sh

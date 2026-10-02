@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: d2-tracker-format
+context:
+  # D-2·D-4 회귀: 기존 트래커에 새 판정을 기록할 때 섹션 삽입 위치·본문 헤더 강등 규약
+  scaffold_script: scaffold.sh
