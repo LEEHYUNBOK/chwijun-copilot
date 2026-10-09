@@ -45,6 +45,8 @@ Why do I keep getting rejected?    → funnel / rejection pattern analysis
 
 For local testing: `claude --plugin-dir /path/to/chwijun-copilot`.
 
+📖 **Step-by-step [user guide with screenshots](../사용설명서.md)** (Korean) — every screenshot is real output from QA verification runs.
+
 ---
 
 ## How It Works
