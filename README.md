@@ -43,7 +43,7 @@
 
 로컬 테스트는 `claude --plugin-dir /path/to/chwijun-copilot`.
 
-📖 **설치부터 지원 후 관리까지, 실제 화면과 함께 보는 사용설명서** — [CLI판 (Claude Code)](docs/사용설명서-cli.md) · [웹 챗봇판 (ChatGPT·Gemini·Claude.ai)](docs/사용설명서-웹.md). 스크린샷은 전부 실제 실행 출력이다.
+📖 **설치부터 지원 후 관리까지, 실제 화면과 함께 보는 사용설명서** — [CLI판 (Claude Code)](docs/사용설명서-cli.md) · [웹 챗봇판 (ChatGPT·Gemini·Claude.ai)](docs/사용설명서-웹.md). 개발을 모른다면 [🧭 완전 따라하기 (비전공자용)](docs/완전-따라하기.md)부터. 스크린샷은 전부 실제 실행 출력이다.
 
 ---
 
