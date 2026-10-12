@@ -45,7 +45,7 @@ Why do I keep getting rejected?    → funnel / rejection pattern analysis
 
 For local testing: `claude --plugin-dir /path/to/chwijun-copilot`.
 
-📖 **Step-by-step [user guide with screenshots](../사용설명서.md)** (Korean) — every screenshot is real output from QA verification runs.
+📖 **Step-by-step user guides with screenshots** (Korean) — [CLI edition (Claude Code)](../사용설명서-cli.md) · [Web chatbot edition (ChatGPT·Gemini·Claude.ai)](../사용설명서-웹.md). Every screenshot is real execution output.
 
 ---
 
