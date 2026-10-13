@@ -89,17 +89,19 @@ E2E 검증에서 나온 실제 출력이다. 서비스기획자 테스트 프로
 
 ## 무엇이 들어있나
 
+각 스킬의 상세 — 언제 발동하고 무엇을 묻고 무엇을 내놓는지 — 는 **역할 끝의 사용법 링크**(실제 화면 포함)와 **스킬명 링크**(규칙 원문 SKILL.md)로 들어간다.
+
 | 구성요소 | 역할 |
 |---|---|
-| `agents/chwijun-copilot` | 요청을 맞는 스킬로 라우팅하는 진입점 — 스킬 이름을 외울 필요 없다 |
-| `skills/wiki-bootstrap` | 온보딩. 직군 파악 → 인터뷰 → 경력 위키 스캐폴딩 → 설정 저장 |
-| `skills/job-fit` | 공고 URL 하나의 적합도 분석(0~100점, 갭 명시) + 트래커 기록 |
-| `skills/job-scan` | watchlist ATS·채용 사이트 일괄 스캔, 중복 제거, 회당 15건 상한 |
-| `skills/resume-writing` | 이력서·경력기술서·자소서 작성 규칙 + AI 문체 제거 + 문체 기계검사 |
-| `skills/apply-followup` | 지원 후 무응답 점검 — 한국 관행 케이던스(서류 14일, 전형 사이 7일, 문의는 회사당 1회) |
-| `skills/apply-patterns` | 지원 퍼널·탈락 패턴 분석 — 표본 5건 미만이면 패턴 명명을 멈춘다 |
-| `scripts/` | fetch_jd.py(ATS별 수집기) · track_add.py(Notion 트래커) · check_voice.py(문체 검사) |
-| `templates/` | 프로필·위키 문서·지원현황 트래커·watchlist 양식 |
+| [`agents/chwijun-copilot`](agents/chwijun-copilot.md) | 요청을 맞는 스킬로 라우팅하는 진입점 — 스킬 이름을 외울 필요 없다 · [사용법](docs/사용설명서-cli.md#2-첫-대화--뭘-할-수-있나) |
+| [`skills/wiki-bootstrap`](skills/wiki-bootstrap/SKILL.md) | 온보딩. 직군 파악 → 인터뷰 → 경력 위키 스캐폴딩 → 설정 저장 · [사용법](docs/사용설명서-cli.md#3-온보딩--경력-위키-만들기) |
+| [`skills/job-fit`](skills/job-fit/SKILL.md) | 공고 URL 하나의 적합도 분석(0~100점, 갭 명시) + 트래커 기록 · [사용법](docs/사용설명서-cli.md#4-공고-적합도-분석-job-fit) |
+| [`skills/job-scan`](skills/job-scan/SKILL.md) | watchlist ATS·채용 사이트 일괄 스캔, 중복 제거, 회당 15건 상한 · [사용법](docs/사용설명서-cli.md#5-관심-회사-일괄-스캔-job-scan) |
+| [`skills/resume-writing`](skills/resume-writing/SKILL.md) | 이력서·경력기술서·자소서 작성 규칙 + AI 문체 제거 + 문체 기계검사 · [사용법](docs/사용설명서-cli.md#6-이력서자소서-resume-writing) |
+| [`skills/apply-followup`](skills/apply-followup/SKILL.md) | 지원 후 무응답 점검 — 한국 관행 케이던스(서류 14일, 전형 사이 7일, 문의는 회사당 1회) · [사용법](docs/사용설명서-cli.md#7-지원-후-팔로업-apply-followup) |
+| [`skills/apply-patterns`](skills/apply-patterns/SKILL.md) | 지원 퍼널·탈락 패턴 분석 — 표본 5건 미만이면 패턴 명명을 멈춘다 · [사용법](docs/사용설명서-cli.md#8-탈락-패턴-분석-apply-patterns) |
+| [`scripts/`](scripts/) | fetch_jd.py(ATS별 수집기) · track_add.py(Notion 트래커) · check_voice.py(문체 검사) |
+| [`templates/`](templates/) | 프로필·위키 문서·지원현황 트래커·watchlist 양식 |
 
 ## 한국 시장 함정 지식 내장
 
