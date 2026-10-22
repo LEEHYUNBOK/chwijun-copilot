@@ -14,7 +14,7 @@
 
 **한국 취업시장용 구직 코파일럿. 경력 위키 온보딩부터 공고 적합도 분석, 관심회사 스캔, 이력서·자소서 규칙, 지원 트래킹까지 플러그인 설치 한 번으로.**
 
-> **스킬 6종** · **공고 소스 8종** · **E2E 검증 11/11 통과** · **Python 외부 의존성 0** · **설정 파일 1개**
+> **스킬 7종** · **공고 소스 8종** · **E2E 검증 11/11 통과** · **Python 외부 의존성 0** · **설정 파일 1개**
 
 실제 구직 기간에 수십 개 회사에 지원하며 매일 쓰던 개인 스킬 묶음을 남도 쓸 수 있게 일반화했다. 공고를 그럴듯하게 칭찬해주는 도구가 아니다 — 프로필에 없는 경험은 지어내지 않는다. 갭은 갭이라고 말하고 부적합이면 지원하지 말라고 한다. 목적은 지원 실패를 줄이는 것이다.
 
@@ -100,6 +100,7 @@ E2E 검증에서 나온 실제 출력이다. 서비스기획자 테스트 프로
 | [`skills/resume-writing`](skills/resume-writing/SKILL.md) | 이력서·경력기술서·자소서 작성 규칙 + AI 문체 제거 + 문체 기계검사 · [사용법](docs/사용설명서-cli.md#6-이력서자소서-resume-writing) |
 | [`skills/apply-followup`](skills/apply-followup/SKILL.md) | 지원 후 무응답 점검 — 한국 관행 케이던스(서류 14일, 전형 사이 7일, 문의는 회사당 1회) · [사용법](docs/사용설명서-cli.md#7-지원-후-팔로업-apply-followup) |
 | [`skills/apply-patterns`](skills/apply-patterns/SKILL.md) | 지원 퍼널·탈락 패턴 분석 — 표본 5건 미만이면 패턴 명명을 멈춘다 · [사용법](docs/사용설명서-cli.md#8-탈락-패턴-분석-apply-patterns) |
+| [`skills/essay-court`](skills/essay-court/SKILL.md) | 자소서 재판 — 작성 맥락 없는 검사 4명(AI 티·흐름·JD 적합·비문)이 기소, 위키 근거로 변호, 판사가 허위·유죄·기각 판결 |
 | [`scripts/`](scripts/) | fetch_jd.py(ATS별 수집기) · track_add.py(Notion 트래커) · check_voice.py(문체 검사) |
 | [`templates/`](templates/) | 프로필·위키 문서·지원현황 트래커·watchlist 양식 |
 

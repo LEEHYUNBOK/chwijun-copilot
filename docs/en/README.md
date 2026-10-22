@@ -14,7 +14,7 @@
 
 **A job-hunting copilot for the Korean job market. Career-wiki onboarding, posting fit analysis, company watchlist scanning, resume/cover-letter rules, and application tracking — all in one Claude Code plugin install.**
 
-> **6 skills** · **8 posting sources** · **11/11 E2E checks passed** · **0 Python dependencies** · **1 config file**
+> **7 skills** · **8 posting sources** · **11/11 E2E checks passed** · **0 Python dependencies** · **1 config file**
 
 This is a generalized version of the personal skill set I used daily while applying to dozens of companies during an actual job search. It is not a tool that flatters you into applying — it never invents experience that isn't in your profile, it calls a gap a gap, and when a posting is a bad fit it tells you not to apply. The goal is fewer failed applications.
 
@@ -98,6 +98,7 @@ Fit 5/100, "don't apply" — no invented skills, requirements cross-checked agai
 | `skills/resume-writing` | Resume / career statement / cover-letter rules + AI-tone removal + mechanical style check |
 | `skills/apply-followup` | Post-application silence check — Korean-convention cadence (14 days for documents, 7 between stages, one inquiry per company) |
 | `skills/apply-patterns` | Funnel and rejection pattern analysis — refuses to name patterns under 5 samples |
+| `skills/essay-court` | Cover-letter trial — four context-free prosecutors (AI tone, flow, JD fit, grammar) indict, a defender argues from wiki evidence, a judge rules fabricated/guilty/dismissed |
 | `scripts/` | fetch_jd.py (per-ATS collector) · track_add.py (Notion tracker) · check_voice.py (style checker) |
 | `templates/` | Profile, wiki document, tracker, and watchlist templates |
 
