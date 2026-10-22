@@ -17,7 +17,7 @@ description: Use when writing, revising, reviewing, or critiquing a resume (이�
 | 이력서·경력기술서 작성/수정/검토 | `rule.md` |
 | HTML 이력서·경력기술서 생성 / PDF 추출 | `rule.md` + `references/html-export.md` (templates/이력서.html·경력기술서.html 채움 → scripts/export_pdf.sh) |
 | 포트폴리오 (프로젝트 상세 서술) | `rule.md` + `references/portfolio.md` |
-| 자기소개서 (문항형) | `rule.md` + `references/cover-letter.md` + `references/ai-detection.md` (자소서는 산문이라 문체가 그대로 드러난다 — 인간화를 나중에 붙이지 말고 처음부터 읽는다) |
+| 자기소개서 (문항형) | `rule.md` + `references/cover-letter.md` + `references/ai-detection.md` (자소서는 산문이라 문체가 그대로 드러난다 — 인간화를 나중에 붙이지 말고 처음부터 읽는다). 성장과정 등 유형별 구조가 있는 문항은 `references/question-types.md`에서 구조를 먼저 고른다 |
 | 특정 공고에 맞춰 커스터마이징 | `rule.md` + `references/jd-tailoring.md` |
 | 공기업·공공기관 (NCS·블라인드) | `rule.md` + 추가 규칙: 경험을 STAR(상황-과제-행동-결과)로 정리하되 행동(Action) 비중 최대, 판단 기준·선택 이유가 드러나게. NCS 직업기초능력 중 부합 항목 1개+ 매칭. 학벌·나이·출신 언급 배제 |
 | 면접 대비 / 예상 질문 뽑기 | `references/interview-prep.md` |

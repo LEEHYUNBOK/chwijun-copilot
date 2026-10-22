@@ -61,7 +61,7 @@ CLI 플러그인([LEEHYUNBOK/chwijun-copilot](https://github.com/LEEHYUNBOK/chwi
 | 요청 | 읽을 파일 |
 |---|---|
 | 이력서·경력기술서 | `rule.md` |
-| 자기소개서 (문항형) | `rule.md` + `cover-letter.md` + `ai-detection.md` |
+| 자기소개서 (문항형) | `rule.md` + `cover-letter.md` + `ai-detection.md`. 성장과정 등 유형별 구조가 있는 문항은 `question-types.md`에서 구조를 먼저 고른다 |
 | 공고 맞춤 커스터마이징 | `rule.md` + `jd-tailoring.md` |
 | 수치·KPI 표현 | `kpi.md` |
 | 면접 대비·예상 질문 | `interview-prep.md` |
