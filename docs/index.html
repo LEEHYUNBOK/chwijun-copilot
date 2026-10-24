@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>취준 코파일럿 — 한국 취업시장 구직 코파일럿</title>
+<meta name="description" content="경력 위키 온보딩부터 공고 적합도 분석, 자소서 작성·재판, 지원 팔로업까지 — 창작하지 않는 구직 에이전트 플러그인">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+:root{
+  --bg:#f8fafc; --surface:#ffffff; --border:#e2e8f0;
+  --text:#1e293b; --text-dim:#64748b; --text-faint:#94a3b8;
+  --accent:#d97757; --accent-soft:#fdf1ec;
+  --ok:#16a34a; --warn:#b45309; --bad:#dc2626;
+  --code-bg:#f1f5f9;
+}
+[data-theme="dark"]{
+  --bg:#0f172a; --surface:#1e293b; --border:#334155;
+  --text:#e2e8f0; --text-dim:#94a3b8; --text-faint:#64748b;
+  --accent:#e08a6d; --accent-soft:#3a2a23;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  --code-bg:#0b1220;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:15px; line-height:1.65;
+}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px}
+header{
+  position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);
+  z-index:10;
+}
+header .wrap{display:flex;align-items:center;gap:16px;height:56px}
+.logo{font-weight:700;font-size:15px}
+.logo span{color:var(--accent)}
+header nav{margin-left:auto;display:flex;gap:16px;align-items:center}
+header a{color:var(--text-dim);text-decoration:none;font-size:13px}
+header a:hover{color:var(--text)}
+#theme-toggle{
+  border:1px solid var(--border);background:var(--surface);color:var(--text-dim);
+  border-radius:10px;padding:4px 10px;font-size:13px;cursor:pointer;font-family:inherit;
+}
+#theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero{padding:64px 0 40px}
+.hero h1{font-size:36px;line-height:1.3;font-weight:700;letter-spacing:-0.02em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p.lead{margin-top:16px;font-size:18px;color:var(--text-dim);max-width:34em}
+.hero .badges{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-size:13px;color:var(--text-dim);border:1px solid var(--border);border-radius:10px;padding:2px 10px;background:var(--surface)}
+.install{margin-top:24px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:ui-monospace,Menlo,monospace;font-size:13px;overflow-x:auto;white-space:pre;line-height:1.8}
+.install .c{color:var(--text-faint)}
+
+section{padding:40px 0;border-top:1px solid var(--border)}
+h2{font-size:24px;font-weight:700;letter-spacing:-0.01em}
+h2 + p.sub{margin-top:8px;color:var(--text-dim);max-width:40em}
+
+.flow-scroll{margin-top:24px;overflow-x:auto;padding-bottom:8px}
+.flow-scroll svg{display:block;min-width:820px;width:100%;height:auto}
+.flow-note{margin-top:8px;font-size:13px;color:var(--text-faint)}
+
+table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
+th{text-align:left;color:var(--text-dim);font-weight:600;font-size:13px;padding:8px;border-bottom:1px solid var(--border)}
+td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+td code,li code,p code{background:var(--code-bg);border-radius:4px;padding:1px 5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace}
+td:first-child{white-space:nowrap;font-weight:600}
+
+.honest{margin-top:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.honest .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.honest .card h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.honest .card h3 .no{color:var(--bad)}
+.honest .card p{font-size:13px;color:var(--text-dim)}
+.verdict{
+  margin-top:24px;background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:10px;padding:16px;font-family:ui-monospace,Menlo,monospace;font-size:13px;overflow-x:auto;white-space:pre;
+  color:var(--text-dim);
+}
+.verdict b{color:var(--text)}
+
+.channels{margin-top:24px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.channels .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.channels .card h3{font-size:15px;font-weight:700}
+.channels .card p{margin-top:6px;font-size:13px;color:var(--text-dim)}
+.channels .card .tag{font-size:12px;color:var(--ok);font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:24px 0 48px;font-size:13px;color:var(--text-faint)}
+footer a{color:var(--text-dim)}
+
+@media (max-width:640px){
+  .hero h1{font-size:28px}
+  .honest{grid-template-columns:1fr}
+  .channels{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="logo">취준 <span>코파일럿</span></div>
+    <nav>
+      <a href="#flow">동작 방식</a>
+      <a href="#skills">스킬</a>
+      <a href="https://github.com/LEEHYUNBOK/chwijun-copilot">GitHub</a>
+      <button id="theme-toggle" aria-label="테마 전환">☀︎ 라이트</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="hero">
+  <h1>지어내지 않는<br>구직 코파일럿<em>.</em></h1>
+  <p class="lead">경력 위키 온보딩부터 공고 적합도 판정, 자소서 작성과 재판, 지원 팔로업까지 — 한국 취업시장 기준으로 움직이는 에이전트 플러그인. 근거 없는 문장은 쓰지 않고, 안 맞는 공고는 안 맞는다고 말한다.</p>
+  <div class="badges">
+    <span class="badge">스킬 7종</span>
+    <span class="badge">공고 소스 8종</span>
+    <span class="badge">Python 외부 의존성 0</span>
+    <span class="badge">데이터는 내 머신에</span>
+    <span class="badge">MIT</span>
+  </div>
+  <div class="install"><span class="c"># Claude Code · Codex 공통 — 마켓플레이스 추가 후 설치</span>
+/plugin marketplace add LEEHYUNBOK/chwijun-copilot
+/plugin install chwijun-copilot@chwijun-copilot
+
+<span class="c"># 첫 실행 — 온보딩 (1회, 필수)</span>
+"취준 시작하려고 해. 세팅해줘"</div>
+</div>
+
+<section id="flow">
+  <h2>동작 방식</h2>
+  <p class="sub">설치 후 다섯 단계. 모든 단계의 산출물은 내 머신의 <b>경력 위키</b>에 쌓이고, 다음 단계가 그 위키를 근거로 움직인다.</p>
+  <div class="flow-scroll">
+  <svg viewBox="0 0 820 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="설치, 온보딩, 공고 분석, 서류 작성, 재판, 기록·팔로업으로 이어지는 흐름도">
+    <defs>
+      <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--text-faint)"/>
+      </marker>
+    </defs>
+    <style>
+      .box{fill:var(--surface);stroke:var(--border);rx:10}
+      .box-accent{fill:var(--accent-soft);stroke:var(--accent)}
+      .t1{font:600 14px Pretendard,sans-serif;fill:var(--text)}
+      .t2{font:400 11.5px Pretendard,sans-serif;fill:var(--text-dim)}
+      .t3{font:600 11px ui-monospace,Menlo,monospace;fill:var(--accent)}
+      .edge{stroke:var(--text-faint);stroke-width:1.2;fill:none;marker-end:url(#arr)}
+      .wiki-edge{stroke:var(--accent);stroke-width:1.2;fill:none;stroke-dasharray:4 3}
+    </style>
+
+    <!-- 1 온보딩 -->
+    <rect class="box" x="10" y="30" width="150" height="86" rx="10"/>
+    <text class="t1" x="26" y="58">① 온보딩</text>
+    <text class="t3" x="26" y="76">wiki-bootstrap</text>
+    <text class="t2" x="26" y="94">직군 파악 → 인터뷰</text>
+    <text class="t2" x="26" y="108">→ 경력 위키 생성</text>
+
+    <!-- 2 공고 -->
+    <rect class="box" x="220" y="30" width="150" height="86" rx="10"/>
+    <text class="t1" x="236" y="58">② 공고 분석</text>
+    <text class="t3" x="236" y="76">job-fit · job-scan</text>
+    <text class="t2" x="236" y="94">적합도 0~100 판정</text>
+    <text class="t2" x="236" y="108">갭 명시 · 일괄 스캔</text>
+
+    <!-- 3 서류 -->
+    <rect class="box" x="430" y="30" width="150" height="86" rx="10"/>
+    <text class="t1" x="446" y="58">③ 서류 작성</text>
+    <text class="t3" x="446" y="76">resume-writing</text>
+    <text class="t2" x="446" y="94">이력서 · 자소서 규칙</text>
+    <text class="t2" x="446" y="108">문항 유형별 구조</text>
+
+    <!-- 4 재판 -->
+    <rect class="box box-accent" x="640" y="30" width="150" height="86" rx="10"/>
+    <text class="t1" x="656" y="58">④ 자소서 재판</text>
+    <text class="t3" x="656" y="76">essay-court</text>
+    <text class="t2" x="656" y="94">검사 4 · 변호 1 · 판사</text>
+    <text class="t2" x="656" y="108">허위 &gt; 유죄 &gt; 기각</text>
+
+    <!-- 5 기록·팔로업 -->
+    <rect class="box" x="430" y="180" width="360" height="72" rx="10"/>
+    <text class="t1" x="446" y="206">⑤ 지원 기록 · 팔로업 · 패턴 분석</text>
+    <text class="t3" x="446" y="224">apply-followup · apply-patterns</text>
+    <text class="t2" x="446" y="240">무응답 점검(한국 관행 케이던스) · 탈락 퍼널 분석(표본 5건 미만이면 판단 중지)</text>
+
+    <!-- 위키 -->
+    <rect class="box box-accent" x="10" y="180" width="360" height="72" rx="10"/>
+    <text class="t1" x="26" y="206">경력 위키 — 단일 근거 저장소</text>
+    <text class="t2" x="26" y="224">프로필 · 프로젝트 · 수치 근거 전부 내 머신의 위키 폴더에만.</text>
+    <text class="t2" x="26" y="240">모든 스킬이 여기서 읽고, 여기 없는 사실은 쓰지 않는다.</text>
+
+    <!-- edges -->
+    <line class="edge" x1="160" y1="73" x2="214" y2="73"/>
+    <line class="edge" x1="370" y1="73" x2="424" y2="73"/>
+    <line class="edge" x1="580" y1="73" x2="634" y2="73"/>
+    <line class="edge" x1="715" y1="116" x2="715" y2="174"/>
+    <path class="wiki-edge" d="M85 116 L85 174"/>
+    <path class="wiki-edge" d="M295 174 L295 116"/>
+    <path class="wiki-edge" d="M370 216 L424 216"/>
+    <text class="t2" x="95" y="150" fill="var(--accent)">위키 생성 · 갱신</text>
+    <text class="t2" x="305" y="150" fill="var(--accent)">위키로 판정</text>
+
+    <!-- footnote -->
+    <text class="t2" x="10" y="292">점선 = 위키를 읽고 쓰는 경로 · 실선 = 작업 흐름. Notion 트래커 연동은 선택.</text>
+  </svg>
+  </div>
+  <p class="flow-note">④ 자소서 재판: 작성 맥락이 없는 검사 4명(AI 티 · 흐름 · JD 적합 · 비문)이 문장 인용으로 기소하고, 위키 근거를 가진 변호인이 다투고, 판사가 판결한다. 위키와 모순되는 주장은 "허위"로 제출이 막힌다.</p>
+</section>
+
+<section id="skills">
+  <h2>스킬 7종</h2>
+  <table>
+    <thead><tr><th>스킬</th><th>하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><code>wiki-bootstrap</code></td><td>온보딩. 직군 파악 → 인터뷰 → 경력 위키 스캐폴딩 → 설정 저장</td></tr>
+      <tr><td><code>job-fit</code></td><td>공고 URL 하나의 적합도 분석(0~100점, 갭 명시) + 트래커 기록</td></tr>
+      <tr><td><code>job-scan</code></td><td>관심 회사 ATS·채용 사이트 일괄 스캔, 중복 제거, 회당 15건 상한</td></tr>
+      <tr><td><code>resume-writing</code></td><td>이력서·경력기술서·자소서 작성 규칙 + 문항 유형별 구조 + AI 문체 제거</td></tr>
+      <tr><td><code>essay-court</code></td><td>제출 전 자소서 재판 — 검사 4명 기소, 위키 근거 변호, 허위·유죄·기각 판결</td></tr>
+      <tr><td><code>apply-followup</code></td><td>지원 후 무응답 점검 — 한국 관행 케이던스(서류 14일, 전형 사이 7일)</td></tr>
+      <tr><td><code>apply-patterns</code></td><td>지원 퍼널·탈락 패턴 분석 — 표본 5건 미만이면 패턴 명명을 멈춘다</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>정직함이 설계다</h2>
+  <p class="sub">잘 맞는다고 말해주는 도구는 많다. 이 플러그인은 반대로 설계했다.</p>
+  <div class="honest">
+    <div class="card"><h3><span class="no">✕</span> 창작 금지</h3><p>위키에 없는 경험·수치는 서류에 쓰지 않는다. 비면 비었다고 알리고 인터뷰로 캔다.</p></div>
+    <div class="card"><h3><span class="no">✕</span> 덮어놓고 "적합"</h3><p>갭은 갭이라고 명시한다. 직군이 다르면 점수와 함께 "현재는 부적합"이 출력된다.</p></div>
+    <div class="card"><h3><span class="no">✕</span> 표본 없는 패턴</h3><p>탈락 5건 미만이면 패턴을 명명하지 않는다. 데이터가 부족하면 부족하다고 말한다.</p></div>
+  </div>
+  <div class="verdict"><b>## 적합도 하 · 5/100 · 현재는 부적합 · ⚠️ 직군 불일치</b> (기획 → 보안 엔지니어링)
+— 실제 출력. 점수를 부풀리지 않는 것이 이 도구의 첫 번째 기능이다.</div>
+</section>
+
+<section>
+  <h2>설치 채널</h2>
+  <div class="channels">
+    <div class="card"><h3>Claude Code</h3><p class="tag">E2E 검증 완료</p><p>마켓플레이스 add + install. 위 빠른 시작 그대로.</p></div>
+    <div class="card"><h3>Codex CLI</h3><p class="tag">E2E 검증 완료</p><p>Claude 플러그인 형식을 네이티브로 소비. 같은 명령으로 설치.</p></div>
+    <div class="card"><h3>Antigravity</h3><p class="tag">E2E 검증 완료</p><p>clone + AGENTS.md 래퍼로 같은 스킬 지시를 사용.</p></div>
+    <div class="card"><h3>챗봇 라이트판</h3><p class="tag">claude.ai · GPT · Gemini</p><p><code>chatbot/</code>의 zip·지시문 업로드. 판정·서류 규칙만, 스캔·자동기록 제외.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="https://github.com/LEEHYUNBOK/chwijun-copilot">github.com/LEEHYUNBOK/chwijun-copilot</a> · MIT License · 프로필·위키·지원 기록은 전부 사용자 머신에만 저장
+  </div>
+</footer>
+
+<script>
+(function(){
+  var KEY='chwijun-theme';
+  var root=document.documentElement, btn=document.getElementById('theme-toggle');
+  var saved=localStorage.getItem(KEY);
+  if(saved==='dark'||saved==='light') root.setAttribute('data-theme',saved);
+  function label(){btn.textContent=root.getAttribute('data-theme')==='dark'?'☾ 다크':'☀︎ 라이트';}
+  btn.addEventListener('click',function(){
+    var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next); localStorage.setItem(KEY,next); label();
+  });
+  label();
+})();
+</script>
+</body>
+</html>
