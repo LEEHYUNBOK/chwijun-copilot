@@ -61,7 +61,7 @@ CLI 플러그인([LEEHYUNBOK/chwijun-copilot](https://github.com/LEEHYUNBOK/chwi
 | 요청 | 읽을 파일 |
 |---|---|
 | 이력서·경력기술서 | `rule.md` |
-| 자기소개서 (문항형) | `rule.md` + `cover-letter.md` + `ai-detection.md`. 성장과정 등 유형별 구조가 있는 문항은 `question-types.md`에서 구조를 먼저 고른다 |
+| 자기소개서 (문항형) | `rule.md` + `cover-letter.md` + `ai-detection.md`. 성장과정 등 유형별 구조가 있는 문항은 `question-types.md`에서 구조를 먼저 고른다. **기본 출력은 본문 초안이 아니라 소재 추천** — ① 문항 분해·키워드 ② 소재 리더보드(적합도 % + 근거: KPI 연관·수치 보유·문항 의도·소재 중복) ③ 불릿 구조 뼈대. 완성 문장은 "초안 써줘"라고 명시했을 때만 쓴다 |
 | 공고 맞춤 커스터마이징 | `rule.md` + `jd-tailoring.md` |
 | 수치·KPI 표현 | `kpi.md` |
 | 면접 대비·예상 질문 | `interview-prep.md` |
