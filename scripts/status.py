@@ -9,6 +9,7 @@ import json
 import re
 import sys
 import unicodedata
+from datetime import date
 from pathlib import Path
 
 SCORE = {"충": 1.0, "부": 0.5, "비": 0.0}
@@ -103,6 +104,35 @@ def scan(wiki):
             "removed": sorted(k for k in stored if k not in files)}
 
 
+IDENT = re.compile(r"[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|[a-z]+[A-Z][A-Za-z]+|[A-Z][a-z]+[A-Z][A-Za-z]+|[A-Z]{2,}-[0-9]+")
+NAME = re.compile(r"(?:담당|팀장|PM)\s+([가-힣]{2,4})(?![가-힣])")
+ALLOW = {"MySQL", "jMeter", "OpenTelemetry", "GitHub", "GitLab", "PostgreSQL", "MariaDB"}
+NOT_NAME = ("팀원", "외주", "벤더", "업체", "인프라", "운영")
+
+
+def leaks(source, output):
+    names = {n for n in NAME.findall(source) if not n.startswith(NOT_NAME)}
+    tokens = (set(IDENT.findall(source)) - ALLOW) | names
+    return sorted(t for t in tokens if t in output)
+
+
+def record(wiki, doc, result_path):
+    files = wiki_docs(wiki)
+    key = unicodedata.normalize("NFC", doc)
+    if key not in files:
+        raise ValueError(f"위키에 없는 문서: {doc}")
+    text = Path(result_path).read_text(encoding="utf-8")
+    entry = parse_result(text)
+    found = leaks(files[key].read_text(encoding="utf-8"), text)
+    if found:
+        raise ValueError(f"출력에 원문 식별자: {', '.join(found)}")
+    entry.update(sha256=sha(files[key]), scored_at=date.today().isoformat())
+    data = load(wiki)
+    data["docs"][key] = entry
+    save(wiki, data)
+    return entry
+
+
 SAMPLE_OK = """## doc
 유형: doc = 조사
 | 칸 | 판정 | 근거 위치 (절 이름) | 이유 | 채우기 질문 |
@@ -124,6 +154,9 @@ SAMPLE_BAD_TYPE = SAMPLE_OK.replace("유형: doc = 조사", "유형: doc = 기�
 
 
 def selftest():
+    assert leaks("백엔드를 담당한다", "개발을 한다") == []
+    assert leaks("담당 홍길동 확인", "홍길동에게 물었나?") == ["홍길동"]
+    assert leaks("담당 팀원B", "담당 팀원에게") == []
     assert rate(list("부부충부충충충")) == (5.5, 7)
     assert rate(list("충부충부한충부")) == (4.5, 6)
     assert fill_text(list("충부부부부부부")) == "57.1% (점수 합 4.0 / 분모 7, 한계 명시 0칸)"
@@ -147,6 +180,14 @@ def main(argv):
         return selftest()
     if len(argv) == 2 and argv[0] == "scan":
         return print(json.dumps(scan(Path(argv[1])), ensure_ascii=False))
+    if len(argv) == 4 and argv[0] == "record":
+        try:
+            e = record(Path(argv[1]), argv[2], argv[3])
+        except (ValueError, OSError) as err:
+            print(f"기록 거부: {err}", file=sys.stderr)
+            sys.exit(2)
+        label = f"제외 — {e['reason']}" if e["type"] == "제외" else fill_text(e["cells"])
+        return print(f"기록: {unicodedata.normalize('NFC', argv[2])} {label}")
     sys.exit(__doc__)
 
 
