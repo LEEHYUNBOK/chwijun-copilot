@@ -4,8 +4,12 @@
 LLM(status 스킬)은 칸별 판정만 낸다. 퍼센트는 이 스크립트가 계산한다.
 사용: status.py scan <wiki> | record <wiki> <문서> <result.md> | render <wiki> | --selftest
 """
+import hashlib
+import json
 import re
 import sys
+import unicodedata
+from pathlib import Path
 
 SCORE = {"충": 1.0, "부": 0.5, "비": 0.0}
 CELLS = ("C1", "C2", "C3", "C4", "C5", "C6", "C7")
@@ -66,6 +70,39 @@ def parse_result(text):
     return {"type": kind, "cells": cells, "rows": out}
 
 
+def doc_key(path, wiki):
+    return unicodedata.normalize("NFC", path.relative_to(wiki).as_posix())
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load(wiki):
+    f = wiki / ".status" / "scores.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {"rubric": "v4", "docs": {}}
+
+
+def save(wiki, data):
+    d = wiki / ".status"
+    d.mkdir(exist_ok=True)
+    (d / "scores.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def wiki_docs(wiki):
+    return {doc_key(p, wiki): p for p in wiki.rglob("*.md")
+            if not any(part.startswith(".") for part in p.relative_to(wiki).parts)}
+
+
+def scan(wiki):
+    stored = load(wiki)["docs"]
+    files = wiki_docs(wiki)
+    changed = sorted(k for k, p in files.items() if stored.get(k, {}).get("sha256") != sha(p))
+    return {"changed": changed,
+            "unchanged": sorted(k for k in files if k not in changed),
+            "removed": sorted(k for k in stored if k not in files)}
+
+
 SAMPLE_OK = """## doc
 유형: doc = 조사
 | 칸 | 판정 | 근거 위치 (절 이름) | 이유 | 채우기 질문 |
@@ -105,6 +142,13 @@ def selftest():
     print("selftest OK")
 
 
+def main(argv):
+    if argv == ["--selftest"]:
+        return selftest()
+    if len(argv) == 2 and argv[0] == "scan":
+        return print(json.dumps(scan(Path(argv[1])), ensure_ascii=False))
+    sys.exit(__doc__)
+
+
 if __name__ == "__main__":
-    if sys.argv[1:] == ["--selftest"]:
-        selftest()
+    main(sys.argv[1:])

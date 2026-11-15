@@ -53,4 +53,22 @@ sys.exit(1)" || { echo "FAIL: require_props가 누락 속성을 안내하지 않
 # status: 파서·채움률 셀프테스트
 python3 status.py --selftest >/dev/null || { echo "FAIL: status --selftest"; fail=1; }
 
+# status scan: 변경 감지·NFC 키·삭제 감지·숨김 폴더 제외
+W=/tmp/st_wiki_$$; rm -rf "$W"; mkdir -p "$W/.status"
+echo a > "$W/a.md"; echo b > "$W/b.md"; echo h > "$W/.status/x.md"
+python3 -c "import unicodedata,pathlib; pathlib.Path('$W/'+unicodedata.normalize('NFD','문서.md')).write_text('x')"
+out=$(python3 status.py scan "$W")
+echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if d['changed']==['a.md','b.md','문서.md'] and d['removed']==[] else 1)" \
+  || { echo "FAIL: scan 첫 실행 changed: $out"; fail=1; }
+python3 - "$W" <<'PY'
+import hashlib, json, pathlib, sys
+w = pathlib.Path(sys.argv[1]); h = lambda s: hashlib.sha256(s.encode()).hexdigest()
+docs = {"a.md": {"sha256": h("a\n")}, "문서.md": {"sha256": h("x")}, "gone.md": {"sha256": "0"}}
+(w / ".status/scores.json").write_text(json.dumps({"rubric": "v4", "docs": docs}, ensure_ascii=False))
+PY
+out=$(python3 status.py scan "$W")
+echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if d=={'changed':['b.md'],'unchanged':['a.md','문서.md'],'removed':['gone.md']} else 1)" \
+  || { echo "FAIL: scan 해시 비교·NFC·removed: $out"; fail=1; }
+rm -rf "$W"
+
 [ $fail -eq 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
