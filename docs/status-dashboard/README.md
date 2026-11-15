@@ -1,6 +1,6 @@
 # 위키 상태 대시보드 — 기획·채점 기준 검증 기록
 
-> 이슈: [#14 상태 대시보드](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/14) · 관련 [#15 설명 가능성 테스트](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/15) · [#16 직군별 채점](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/16) · [#17 지원현황·포트폴리오(후속)](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/17)
+> 이슈: [#14 상태 대시보드](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/14) · 관련 [#15 설명 가능성 테스트](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/15) · [#16 직군별 채점](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/16) · [#17 지원현황·포트폴리오(후속)](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/17) · **[#18 채점 기준 v1 개정](https://github.com/LEEHYUNBOK/chwijun-copilot/issues/18)**
 > **공개본이다.** 채점 대상은 개발자 본인의 경력 위키 문서 2개(LLM 생성 SQL 검증 기능 / 권한·메뉴 재설계)다. 방법·기준·판정·결과·감사 내역은 전부 여기 있고, **위키 원문이 통째로 들어간 `채점자원본/`·`fixtures/`는 공개하지 않고 개인 저장소에 보관**한다(사내 시스템 세부가 들어 있다). 본문에서 그 경로를 가리키는 곳은 비공개 보관본을 뜻한다.
 
 ## 지금까지 합의된 설계 (브레인스토밍, 2026-11-12 ~ 11-15)
