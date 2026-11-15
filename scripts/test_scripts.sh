@@ -95,4 +95,27 @@ python3 status.py record "$W" toc.md "$W/ex.md" >/dev/null 2>&1 \
   || { echo "FAIL: record 제외 유형"; fail=1; }
 rm -rf "$W"
 
+# status render: 채움률 표기·수정됨 배지·삭제 문서·이스케이프·빈 상태
+W=/tmp/st_ren_$$; rm -rf "$W"; mkdir -p "$W"
+python3 status.py render "$W" >/dev/null && grep -q '아직 채점한 문서가 없습니다' "$W/.status/index.html" \
+  || { echo "FAIL: render 빈 상태"; fail=1; }
+for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
+echo changed > "$W/a.md"; rm "$W/b.md"
+python3 - "$W" <<'PY'
+import json, pathlib, sys
+f = pathlib.Path(sys.argv[1]) / ".status/scores.json"; d = json.loads(f.read_text())
+d["docs"]["<img src=x onerror=alert(1)>.md"] = dict(d["docs"]["c.md"]); f.write_text(json.dumps(d, ensure_ascii=False))
+PY
+echo x > "$W/<img src=x onerror=alert(1)>.md"
+python3 status.py render "$W" >/dev/null; H="$W/.status/index.html"
+exp=$(python3 -c "import status; print(status.fill_text(list('충부충부부부부')))")
+grep -qF "$exp" "$H" || { echo "FAIL: render 채움률 표기 ($exp)"; fail=1; }
+grep -q '채점 후 수정됨' "$H" || { echo "FAIL: render 수정됨 배지"; fail=1; }
+grep -q '"b.md"' "$H" && { echo "FAIL: render 삭제 문서가 남음"; fail=1; }
+grep -q '<img src=x onerror' "$H" && { echo "FAIL: render 이스케이프"; fail=1; }
+grep -qF '&lt;img src=x onerror=alert(1)&gt;.md' "$H" || { echo "FAIL: render 이스케이프된 문서명이 없음"; fail=1; }
+grep -q '>c.md<' "$H" || { echo "FAIL: render 남은 문서 c.md가 없음"; fail=1; }
+grep -q '/chwijun-copilot:status c.md C2' "$H" || { echo "FAIL: render 복사 명령"; fail=1; }
+rm -rf "$W"
+
 [ $fail -eq 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
