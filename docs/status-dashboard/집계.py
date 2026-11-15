@@ -10,6 +10,7 @@ from collections import Counter
 
 SCORE = {"충": 1.0, "부": 0.5, "비": 0.0}
 LINE = re.compile(r"^판정:\s*(\S+)\s*=\s*([충부비한](?:\s*,\s*[충부비한]){6})\s*$")
+KIND = re.compile(r"^유형:\s*(\S+)\s*=\s*(프로젝트|장애|조사)\s*$")
 
 
 def rate(cells):
@@ -18,12 +19,15 @@ def rate(cells):
 
 
 def parse(path):
-    out = {}
+    out, kinds = {}, {}
     for line in open(path, encoding="utf-8"):
         m = LINE.match(line.strip())
         if m:
             out[m.group(1)] = [c.strip() for c in m.group(2).split(",")]
-    return out
+        k = KIND.match(line.strip())
+        if k:
+            kinds[k.group(1)] = k.group(2)
+    return out, kinds
 
 
 def majority(column):
@@ -32,10 +36,15 @@ def majority(column):
 
 
 def main(paths):
-    raters = [parse(p) for p in paths]
+    parsed = [parse(p) for p in paths]
+    raters = [r for r, _ in parsed]
+    kinds = [k for _, k in parsed]
     docs = sorted(set().union(*raters))
     full = maj = total = 0
     for d in docs:
+        if any(kinds):
+            ks = [k.get(d, "-") for k in kinds]
+            print(f"{d} 유형: {','.join(ks)}  {'일치' if len(set(ks)) == 1 else '불일치'}")
         rows = [r[d] for r in raters if d in r]
         if len(rows) != len(raters):
             print(f"{d}: 판정 줄이 없는 채점자가 있다 — 건너뜀")
@@ -66,6 +75,7 @@ def demo():
     assert rate(list("충부부부한충부")) == (4.0, 6)
     assert majority(("부", "비", "비")) == "비" and majority(("충", "부", "비")) is None
     assert LINE.match("판정: d3 = 충,부,부,부,한,충,부")
+    assert KIND.match("유형: e4 = 조사") and not KIND.match("유형: e4 = 기타")
 
 
 if __name__ == "__main__":
