@@ -4,7 +4,7 @@ set -u
 cd "$(dirname "$0")"
 fail=0
 
-python3 -m py_compile fetch_jd.py track_add.py check_voice.py || fail=1
+python3 -m py_compile fetch_jd.py track_add.py check_voice.py status.py || fail=1
 
 # check_voice: 위반 픽스처 → exit 1, 검출 3종
 cat > /tmp/cv_bad.md <<'EOF'
@@ -49,5 +49,8 @@ except SystemExit as e:
     msg = str(e)
     sys.exit(0 if ('회사' in msg and '지원 링크' in msg) else 1)
 sys.exit(1)" || { echo "FAIL: require_props가 누락 속성을 안내하지 않음"; fail=1; }
+
+# status: 파서·채움률 셀프테스트
+python3 status.py --selftest >/dev/null || { echo "FAIL: status --selftest"; fail=1; }
 
 [ $fail -eq 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
