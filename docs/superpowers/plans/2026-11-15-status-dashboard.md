@@ -134,8 +134,8 @@ for bad, word in [(SAMPLE_NO_VERDICT, "판정 줄"), (SAMPLE_SIX_CELLS, "7칸"),
 - **허용 목록:** 제품·도구 이름(예: `MySQL`, `jMeter`)이 원문과 출력에 함께 나오면 걸린다. 그래서 `leaks`는 `ALLOW = {"MySQL", "jMeter", "OpenTelemetry", "GitHub", "GitLab", "PostgreSQL", "MariaDB"}`를 뺀다. 13 재테스트에서 실제로 걸린 두 개(`MySQL`·`jMeter`)가 근거다
 
 - [ ] **Step 1: 테스트 추가**
-  - 원문 `원인은 user_point 테이블과 PointService였다. KAN-12 참고. 담당 홍길동` + 출력 이유 칸에 `user_point` → exit 2, stderr에 `user_point`
-  - 같은 원문 + 출력에 `포인트 테이블`(일반어) → exit 0, scores.json에 키·`cells`·`sha256` 저장
+  - 원문 `원인은 order_item 테이블과 OrderService였다. ABC-12 참고. 담당 홍길동` + 출력 이유 칸에 `order_item` → exit 2, stderr에 `order_item`
+  - 같은 원문 + 출력에 `주문 상세 테이블`(일반어) → exit 0, scores.json에 키·`cells`·`sha256` 저장
   - 출력 채우기 질문에 `홍길동` → exit 2
   - 판정 줄 없는 결과 파일 → exit 2, 트레이스백 없음(`grep -q Traceback`이 실패해야 함)
   - `제외` 결과 → exit 0, 저장된 항목의 `type == "제외"`
