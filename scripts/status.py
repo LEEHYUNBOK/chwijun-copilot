@@ -105,16 +105,20 @@ def scan(wiki):
             "removed": sorted(k for k in stored if k not in files)}
 
 
-IDENT = re.compile(r"[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|[a-z]+[A-Z][A-Za-z]+|[A-Z][a-z]+[A-Z][A-Za-z]+|[A-Z]{2,}-[0-9]+")
+IDENT = re.compile(r"[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|[A-Z]{2,}-[0-9]+")
+# \b는 한글 조사 앞에서 경계가 안 생긴다("OrderService는") — 영숫자 기준 lookaround로 끊는다
+CODE = re.compile(r"(?<![A-Za-z0-9])(?:[A-Za-z]+(?:Service|Controller|Mapper|Repository|Dao|Dto|Entity|Handler|Impl|Utils?|Config|Manager|Client|Job)|(?:[A-Z][a-z0-9]+){3,})(?![A-Za-z0-9])")
+TICKED = re.compile(r"`([A-Za-z][A-Za-z0-9_.]+)`")
 NAME = re.compile(r"(?:담당|팀장|PM)\s+([가-힣]{2,4})(?![가-힣])")
 ALLOW = {"MySQL", "jMeter", "OpenTelemetry", "GitHub", "GitLab", "PostgreSQL", "MariaDB"}
 NOT_NAME = ("팀원", "외주", "벤더", "업체", "인프라", "운영")
+PARTICLE = tuple("는를을의별들에도만로")
 
 
 def leaks(source, output):
-    names = {n for n in NAME.findall(source) if not n.startswith(NOT_NAME)}
-    tokens = (set(IDENT.findall(source)) - ALLOW) | names
-    return sorted(t for t in tokens if t in output)
+    names = {n for n in NAME.findall(source) if not n.startswith(NOT_NAME) and not n.endswith(PARTICLE)}
+    tokens = (set(IDENT.findall(source)) | set(CODE.findall(source)) | set(TICKED.findall(source))) - ALLOW
+    return sorted(t for t in tokens | names if t in output)
 
 
 def record(wiki, doc, result_path):
@@ -257,6 +261,11 @@ def selftest():
     assert leaks("백엔드를 담당한다", "개발을 한다") == []
     assert leaks("담당 홍길동 확인", "홍길동에게 물었나?") == ["홍길동"]
     assert leaks("담당 팀원B", "담당 팀원에게") == []
+    assert leaks("담당 주체별로 나눴다. 담당 건수는 3건", "주체별 정리, 건수는 적다") == []
+    assert leaks("AWS CodeDeploy와 CloudWatch로 배포", "CodeDeploy 배포 실패 시 CloudWatch 경보") == []
+    assert leaks("원인은 `menuTree`와 OrderService", "menuTree를 고쳤나? OrderService는?") == ["OrderService", "menuTree"]
+    assert leaks("CustomServletWrappingFilter와 EnbldEvlTimeList", "CustomServletWrappingFilter·EnbldEvlTimeList") == ["CustomServletWrappingFilter", "EnbldEvlTimeList"]
+    assert leaks("OrderService는 느렸다", "OrderService") == ["OrderService"]
     assert rate(list("부부충부충충충")) == (5.5, 7)
     assert rate(list("충부충부한충부")) == (4.5, 6)
     assert fill_text(list("충부부부부부부")) == "57.1% (점수 합 4.0 / 분모 7, 한계 명시 0칸)"
