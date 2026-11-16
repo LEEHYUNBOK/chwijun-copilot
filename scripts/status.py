@@ -17,8 +17,8 @@ SCORE = {"충": 1.0, "부": 0.5, "비": 0.0}
 CELLS = ("C1", "C2", "C3", "C4", "C5", "C6", "C7")
 TYPES = ("프로젝트", "장애", "조사", "제외")
 WORD = {"충분함": "충", "부족함": "부", "비어 있음": "비", "한계 명시": "한"}
-LINE = re.compile(r"^판정:\s*(\S+)\s*=\s*([충부비한](?:\s*,\s*[충부비한]){6})\s*$")
-KIND = re.compile(r"^유형:\s*(\S+)\s*=\s*(\S+)\s*$")
+LINE = re.compile(r"^판정:\s*(.+?)\s*=\s*([충부비한](?:\s*,\s*[충부비한]){6})\s*$")
+KIND = re.compile(r"^유형:\s*(.+?)\s*=\s*(\S+)\s*$")
 ROW = re.compile(r"^\|\s*(C[1-7])\s*\|")
 
 
@@ -128,6 +128,10 @@ def record(wiki, doc, result_path):
         raise ValueError(f"위키에 없는 문서: {doc}")
     text = Path(result_path).read_text(encoding="utf-8")
     entry = parse_result(text)
+    # 서브에이전트 결과 파일이 뒤바뀌면 남의 점수가 저장된다 — 유형 줄 이름을 문서 키와 대조
+    name = unicodedata.normalize("NFC", next(m.group(1) for m in map(KIND.match, map(str.strip, text.splitlines())) if m))
+    if name not in (key, key.removesuffix(".md"), Path(key).stem):
+        raise ValueError(f"결과 파일의 문서 이름 '{name}'이 {key}와 다름")
     found = leaks(files[key].read_text(encoding="utf-8"), text)
     if found:
         raise ValueError(f"출력에 원문 식별자: {', '.join(found)}")
@@ -224,8 +228,16 @@ def render_docs(wiki):
     f = wiki / ".status" / "docs.json"
     if not f.exists():
         return ""
+    try:
+        return _docs_cards(wiki, json.loads(f.read_text(encoding="utf-8")))
+    except (ValueError, KeyError, TypeError, AttributeError) as err:
+        return (f'<section class="card"><h2>내 서류</h2><p class="empty">docs.json을 읽을 수 없어요: '
+                f'{html.escape(repr(err))}. [{{"group", "label", "path"}}] 형식인지 확인해 주세요</p></section>')
+
+
+def _docs_cards(wiki, items):
     esc, out, last = html.escape, ['<section class="card"><h2>내 서류</h2>'], None
-    for d in json.loads(f.read_text(encoding="utf-8")):
+    for d in items:
         if d.get("group") != last:
             if last is not None:
                 out.append("</div>")

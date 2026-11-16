@@ -89,6 +89,11 @@ python3 -c "import json,sys,hashlib; d=json.load(open('$W/.status/scores.json'))
 grep -v '^판정:' "$W/r.md" > "$W/bad.md"
 err=$(python3 status.py record "$W" doc.md "$W/bad.md" 2>&1); rc=$?
 [ $rc -eq 2 ] && ! echo "$err" | grep -q Traceback || { echo "FAIL: record 판정 줄 누락이 exit 2가 아님 rc=$rc"; fail=1; }
+echo x > "$W/other.md"; mk "주문 상세 테이블 언급" "직접 한 일은?"
+err=$(python3 status.py record "$W" other.md "$W/r.md" 2>&1); rc=$?
+[ $rc -eq 2 ] && echo "$err" | grep -q '문서 이름' || { echo "FAIL: 다른 문서 결과가 기록됨 rc=$rc: $err"; fail=1; }
+echo x > "$W/a b.md"; sed 's/doc =/a b =/' "$W/r.md" > "$W/sp.md"
+out=$(python3 status.py record "$W" "a b.md" "$W/sp.md" 2>&1) || { echo "FAIL: 공백 문서명 기록: $out"; fail=1; }
 printf '## toc\n유형: toc = 제외\n제외 이유: 목차 문서\n' > "$W/ex.md"; echo "# 목차" > "$W/toc.md"
 python3 status.py record "$W" toc.md "$W/ex.md" >/dev/null 2>&1 \
   && python3 -c "import json,sys; sys.exit(0 if json.load(open('$W/.status/scores.json'))['docs']['toc.md']['type']=='제외' else 1)" \
@@ -108,8 +113,10 @@ grep -q '공통 이력서' "$H" && grep -qF "$(python3 -c "import pathlib,sys; p
   || { echo "FAIL: 서류 카드 링크"; fail=1; }
 grep -q '파일을 찾을 수 없어요' "$H" || { echo "FAIL: 없는 서류 안내"; fail=1; }
 grep -q '<b>포폴' "$H" && { echo "FAIL: 서류 라벨 이스케이프"; fail=1; }
+printf '{bad' > "$W/.status/docs.json"
+python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'docs.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 docs.json"; fail=1; }
 rm "$W/.status/docs.json" "$W/이력서.html"
-for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
+for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('doc =','$d =').replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
 echo changed > "$W/a.md"; rm "$W/b.md"
 python3 - "$W" <<'PY'
 import json, pathlib, sys
@@ -120,8 +127,8 @@ echo x > "$W/<img src=x onerror=alert(1)>.md"
 python3 status.py render "$W" >/dev/null; H="$W/.status/index.html"
 exp=$(python3 -c "import status; print(status.fill_text(list('충부충부부부부')))")
 grep -qF "$exp" "$H" || { echo "FAIL: render 채움률 표기 ($exp)"; fail=1; }
-grep -q '채점 후 수정됨' "$H" || { echo "FAIL: render 수정됨 배지"; fail=1; }
-grep -q '"b.md"' "$H" && { echo "FAIL: render 삭제 문서가 남음"; fail=1; }
+grep -q 'class="badge">채점 후 수정됨' "$H" || { echo "FAIL: render 수정됨 배지"; fail=1; }
+grep -q '>b.md<' "$H" && { echo "FAIL: render 삭제 문서가 남음"; fail=1; }
 grep -q '<img src=x onerror' "$H" && { echo "FAIL: render 이스케이프"; fail=1; }
 grep -qF '&lt;img src=x onerror=alert(1)&gt;.md' "$H" || { echo "FAIL: render 이스케이프된 문서명이 없음"; fail=1; }
 grep -q '>c.md<' "$H" || { echo "FAIL: render 남은 문서 c.md가 없음"; fail=1; }
