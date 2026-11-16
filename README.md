@@ -101,7 +101,8 @@ E2E 검증에서 나온 실제 출력이다. 서비스기획자 테스트 프로
 | [`skills/apply-followup`](skills/apply-followup/SKILL.md) | 지원 후 무응답 점검 — 한국 관행 케이던스(서류 14일, 전형 사이 7일, 문의는 회사당 1회) · [사용법](docs/사용설명서-cli.md#7-지원-후-팔로업-apply-followup) |
 | [`skills/apply-patterns`](skills/apply-patterns/SKILL.md) | 지원 퍼널·탈락 패턴 분석 — 표본 5건 미만이면 패턴 명명을 멈춘다 · [사용법](docs/사용설명서-cli.md#8-탈락-패턴-분석-apply-patterns) |
 | [`skills/essay-court`](skills/essay-court/SKILL.md) | 자소서 재판 — 작성 맥락 없는 검사 4명(AI 티·흐름·JD 적합·비문)이 기소, 위키 근거로 변호, 판사가 허위·유죄·기각 판결 |
-| [`scripts/`](scripts/) | fetch_jd.py(ATS별 수집기) · track_add.py(Notion 트래커) · check_voice.py(문체 검사) |
+| [`skills/status`](skills/status/SKILL.md) | 위키 채움 상태 — 문서마다 7칸(문제·내가 한 일·해결 방식·측정 정의·결과 KPI·왜 대단한가·데이터 문해력)을 판정해 HTML 대시보드로, 부족한 칸은 질문 하나씩으로 채움 · [기준 검증 기록](docs/status-dashboard/) |
+| [`scripts/`](scripts/) | fetch_jd.py(ATS별 수집기) · track_add.py(Notion 트래커) · check_voice.py(문체 검사) · status.py(채움 상태 기록·채움률 계산·대시보드 생성) |
 | [`templates/`](templates/) | 프로필·위키 문서·지원현황 트래커·watchlist 양식 |
 
 ## 한국 시장 함정 지식 내장
@@ -136,6 +137,10 @@ E2E 검증에서 나온 실제 출력이다. 서비스기획자 테스트 프로
 - [ ] 풀 퍼널 스킬 — interview-practice · offer-comparison · salary-negotiation
 
 ## 변경 이력
+
+### 2026-11-15
+
+- **위키 채움 상태 대시보드** (`/chwijun-copilot:status`, #14) — 채점 기준 v4(문서 유형별 읽는 법 포함, 블라인드 재테스트 4회·Codex 감사 6회로 다듬음 — `docs/status-dashboard/`). LLM은 칸별 판정만 내고 채움률은 `scripts/status.py`가 계산한다. 바뀐 문서만 다시 채점하고, 원문 식별자가 채점 출력에 새면 기록을 거부한다. 결과는 `<wiki_path>/.status/index.html`
 
 ### 2026-11-04 ~ 11-05
 
