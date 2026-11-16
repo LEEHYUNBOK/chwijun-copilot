@@ -89,6 +89,15 @@ python3 -c "import json,sys,hashlib; d=json.load(open('$W/.status/scores.json'))
 grep -v '^판정:' "$W/r.md" > "$W/bad.md"
 err=$(python3 status.py record "$W" doc.md "$W/bad.md" 2>&1); rc=$?
 [ $rc -eq 2 ] && ! echo "$err" | grep -q Traceback || { echo "FAIL: record 판정 줄 누락이 exit 2가 아님 rc=$rc"; fail=1; }
+# 재채점 다수결: 결과 3개 중 2개가 C2 충분함이면 충분함, 하나라도 식별자가 새면 거부
+mk "주문 상세 테이블 언급" "직접 한 일은?"; cp "$W/r.md" "$W/r1.md"
+sed -e 's/충,부,충,부,비,충,충/충,충,충,부,비,충,충/' -e 's/| C2 | 부족함 | 「주의」 | 주문 상세 테이블 언급 | 직접 한 일은? |/| C2 | 충분함 | 「주의」 | - | - |/' "$W/r1.md" > "$W/r2.md"; cp "$W/r2.md" "$W/r3.md"
+out=$(python3 status.py record "$W" doc.md "$W/r1.md" "$W/r2.md" "$W/r3.md" 2>&1) \
+  && python3 -c "import json,sys; d=json.load(open('$W/.status/scores.json'))['docs']['doc.md']; sys.exit(0 if d['cells'][1]=='충' and d['raters']==3 else 1)" \
+  || { echo "FAIL: 재채점 다수결: $out"; fail=1; }
+mk "order_item 테이블 언급" "직접 한 일은?"
+err=$(python3 status.py record "$W" doc.md "$W/r2.md" "$W/r.md" "$W/r3.md" 2>&1); rc=$?
+[ $rc -eq 2 ] && echo "$err" | grep -q order_item || { echo "FAIL: 다수결 중 식별자 유출 미검출 rc=$rc"; fail=1; }
 echo x > "$W/other.md"; mk "주문 상세 테이블 언급" "직접 한 일은?"
 err=$(python3 status.py record "$W" other.md "$W/r.md" 2>&1); rc=$?
 [ $rc -eq 2 ] && echo "$err" | grep -q '문서 이름' || { echo "FAIL: 다른 문서 결과가 기록됨 rc=$rc: $err"; fail=1; }
