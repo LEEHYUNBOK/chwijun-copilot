@@ -109,9 +109,9 @@ IDENT = re.compile(r"[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|[A-Z]{2,}-[0-9]+")
 # \b는 한글 조사 앞에서 경계가 안 생긴다("OrderService는") — 영숫자 기준 lookaround로 끊는다
 CODE = re.compile(r"(?<![A-Za-z0-9])(?:[A-Za-z]+(?:Service|Controller|Mapper|Repository|Dao|Dto|Entity|Handler|Impl|Utils?|Config|Manager|Client|Job)|(?:[A-Z][a-z0-9]+){3,})(?![A-Za-z0-9])")
 TICKED = re.compile(r"`([A-Za-z][A-Za-z0-9_.]+)`")
-NAME = re.compile(r"(?:담당|팀장|PM)\s+([가-힣]{2,4})(?![가-힣])")
+NAME = re.compile(r"(?:담당자?|팀장|PM)\s*[:：]?\s+([가-힣]{2,4})(?![가-힣])")
 ALLOW = {"MySQL", "jMeter", "OpenTelemetry", "GitHub", "GitLab", "PostgreSQL", "MariaDB"}
-NOT_NAME = ("팀원", "외주", "벤더", "업체", "인프라", "운영")
+NOT_NAME = ("팀원", "외주", "벤더", "업체", "인프라", "운영", "팀장", "담당")
 PARTICLE = tuple("는를을의별들에도만로")
 
 
@@ -266,6 +266,8 @@ def selftest():
     assert leaks("원인은 `menuTree`와 OrderService", "menuTree를 고쳤나? OrderService는?") == ["OrderService", "menuTree"]
     assert leaks("CustomServletWrappingFilter와 EnbldEvlTimeList", "CustomServletWrappingFilter·EnbldEvlTimeList") == ["CustomServletWrappingFilter", "EnbldEvlTimeList"]
     assert leaks("OrderService는 느렸다", "OrderService") == ["OrderService"]
+    assert leaks("담당자: 홍길동", "홍길동이 처리") == ["홍길동"]
+    assert leaks("담당 팀장에게 보고", "팀장에게 물었다") == []
     assert rate(list("부부충부충충충")) == (5.5, 7)
     assert rate(list("충부충부한충부")) == (4.5, 6)
     assert fill_text(list("충부부부부부부")) == "57.1% (점수 합 4.0 / 분모 7, 한계 명시 0칸)"
