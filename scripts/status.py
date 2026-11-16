@@ -2,7 +2,8 @@
 """위키 상태 대시보드 — 채점 결과 검증·저장, 변경 감지, 채움률 계산, HTML 생성.
 
 LLM(status 스킬)은 칸별 판정만 낸다. 퍼센트는 이 스크립트가 계산한다.
-사용: status.py scan <wiki> | record <wiki> <문서> <result.md> | render <wiki> | --selftest
+사용: status.py scan <wiki> | record <wiki> <문서> <result.md>... | render <wiki> | --selftest
+record에 결과 파일을 여러 개 주면 칸별 다수결로 저장한다(재채점용).
 """
 import hashlib
 import html
@@ -121,20 +122,46 @@ def leaks(source, output):
     return sorted(t for t in tokens | names if t in output)
 
 
-def record(wiki, doc, result_path):
+def majority(entries):
+    """채점자 여럿의 판정을 칸별 다수결로 합친다. 다수가 없으면 가장 낮은 판정(비>부>충>한 순)을 쓴다."""
+    if len(entries) == 1:
+        return dict(entries[0], raters=1)
+    kinds = [e["type"] for e in entries]
+    kind = max(set(kinds), key=kinds.count)
+    if kinds.count(kind) * 2 <= len(kinds):
+        raise ValueError(f"채점자들의 유형이 갈림: {', '.join(kinds)}")
+    same = [e for e in entries if e["type"] == kind]
+    if kind == "제외":
+        return dict(same[0], raters=len(entries))
+    cells, rows = [], []
+    for i in range(len(CELLS)):
+        votes = [e["cells"][i] for e in same]
+        top = max(set(votes), key=votes.count)
+        # ponytail: 세 갈래면 보수적으로 가장 낮은 판정 — 13 재테스트에선 세 갈래가 0건이었다
+        pick = top if votes.count(top) * 2 > len(votes) else next(v for v in "비부충한" if v in votes)
+        cells.append(pick)
+        rows.append(next(e["rows"][i] for e in same if e["cells"][i] == pick))
+    return {"type": kind, "cells": cells, "rows": rows, "raters": len(entries)}
+
+
+def record(wiki, doc, *result_paths):
     files = wiki_docs(wiki)
     key = unicodedata.normalize("NFC", doc)
     if key not in files:
         raise ValueError(f"위키에 없는 문서: {doc}")
-    text = Path(result_path).read_text(encoding="utf-8")
-    entry = parse_result(text)
-    # 서브에이전트 결과 파일이 뒤바뀌면 남의 점수가 저장된다 — 유형 줄 이름을 문서 키와 대조
-    name = unicodedata.normalize("NFC", next(m.group(1) for m in map(KIND.match, map(str.strip, text.splitlines())) if m))
-    if name not in (key, key.removesuffix(".md"), Path(key).stem):
-        raise ValueError(f"결과 파일의 문서 이름 '{name}'이 {key}와 다름")
-    found = leaks(files[key].read_text(encoding="utf-8"), text)
-    if found:
-        raise ValueError(f"출력에 원문 식별자: {', '.join(found)}")
+    source = files[key].read_text(encoding="utf-8")
+    entries = []
+    for path in result_paths:
+        text = Path(path).read_text(encoding="utf-8")
+        entries.append(parse_result(text))
+        # 서브에이전트 결과 파일이 뒤바뀌면 남의 점수가 저장된다 — 유형 줄 이름을 문서 키와 대조
+        name = unicodedata.normalize("NFC", next(m.group(1) for m in map(KIND.match, map(str.strip, text.splitlines())) if m))
+        if name not in (key, key.removesuffix(".md"), Path(key).stem):
+            raise ValueError(f"결과 파일의 문서 이름 '{name}'이 {key}와 다름")
+        found = leaks(source, text)
+        if found:
+            raise ValueError(f"출력에 원문 식별자: {', '.join(found)}")
+    entry = majority(entries)
     entry.update(sha256=sha(files[key]), scored_at=date.today().isoformat())
     data = load(wiki)
     data["docs"][key] = entry
@@ -349,6 +376,15 @@ def selftest():
     assert r["type"] == "조사" and r["cells"] == list("충부충부비충충")
     assert [x["cell"] for x in r["rows"]] == list(CELLS)
     assert parse_result(SAMPLE_EXCLUDED) == {"type": "제외", "cells": [], "rows": [], "reason": "목차 문서"}
+    a, b = parse_result(SAMPLE_OK), parse_result(SAMPLE_OK.replace("충,부,충,부,비,충,충", "부,부,충,부,비,충,충")
+                                                  .replace("| C1 | 충분함 | 「배경」 | - | - |", "| C1 | 부족함 | 「배경」 | 영향 없음 | 영향은? |"))
+    c = parse_result(SAMPLE_OK.replace("충,부,충,부,비,충,충", "비,부,충,부,비,충,한")
+                     .replace("| C1 | 충분함 | 「배경」 | - | - |", "| C1 | 비어 있음 | 「배경」 | 없음 | 무엇이 문제였나? |")
+                     .replace("| C7 | 충분함 | 「표현 기준」 | - | - |", "| C7 | 한계 명시 | 「주의」 | - | - |"))
+    m = majority([a, b, c])
+    assert m["cells"] == list("비부충부비충충"), m["cells"]  # C1 세 갈래 → 가장 낮은 비, C7 2:1 → 충
+    assert m["rows"][0]["ask"] == "무엇이 문제였나?" and m["raters"] == 3
+    assert majority([a])["cells"] == a["cells"]
     for bad, word in [(SAMPLE_NO_VERDICT, "판정 줄"), (SAMPLE_SIX_CELLS, "7칸"),
                       (SAMPLE_NO_QUESTION, "C4"), (SAMPLE_BAD_TYPE, "유형")]:
         try:
@@ -364,9 +400,9 @@ def main(argv):
         return selftest()
     if len(argv) == 2 and argv[0] == "scan":
         return print(json.dumps(scan(Path(argv[1])), ensure_ascii=False))
-    if len(argv) == 4 and argv[0] == "record":
+    if len(argv) >= 4 and argv[0] == "record":
         try:
-            e = record(Path(argv[1]), argv[2], argv[3])
+            e = record(Path(argv[1]), argv[2], *argv[3:])
         except (ValueError, OSError) as err:
             print(f"기록 거부: {err}", file=sys.stderr)
             sys.exit(2)
