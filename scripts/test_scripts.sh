@@ -97,8 +97,18 @@ rm -rf "$W"
 
 # status render: 채움률 표기·수정됨 배지·삭제 문서·이스케이프·빈 상태
 W=/tmp/st_ren_$$; rm -rf "$W"; mkdir -p "$W"
-python3 status.py render "$W" >/dev/null && grep -q '아직 채점한 문서가 없습니다' "$W/.status/index.html" \
+python3 status.py render "$W" >/dev/null && grep -q '아직 채점한 문서가 없어요' "$W/.status/index.html" \
   || { echo "FAIL: render 빈 상태"; fail=1; }
+grep -q '내 서류' "$W/.status/index.html" && { echo "FAIL: docs.json 없는데 서류 절이 나옴"; fail=1; }
+# 서류 카드: docs.json의 상대 경로는 위키 기준, 없는 파일은 안내 문구
+echo r > "$W/이력서.html"
+printf '[{"group":"이력서","label":"공통 이력서","path":"이력서.html"},{"group":"포트폴리오","label":"<b>포폴</b>","path":"없음.pdf"}]' > "$W/.status/docs.json"
+python3 status.py render "$W" >/dev/null; H="$W/.status/index.html"
+grep -q '공통 이력서' "$H" && grep -qF "$(python3 -c "import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().joinpath('이력서.html').as_uri())" "$W")" "$H" \
+  || { echo "FAIL: 서류 카드 링크"; fail=1; }
+grep -q '파일을 찾을 수 없어요' "$H" || { echo "FAIL: 없는 서류 안내"; fail=1; }
+grep -q '<b>포폴' "$H" && { echo "FAIL: 서류 라벨 이스케이프"; fail=1; }
+rm "$W/.status/docs.json" "$W/이력서.html"
 for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
 echo changed > "$W/a.md"; rm "$W/b.md"
 python3 - "$W" <<'PY'

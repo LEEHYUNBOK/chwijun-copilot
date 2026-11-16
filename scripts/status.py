@@ -147,49 +147,97 @@ PAGE = """<!doctype html>
 <title>위키 채움 상태</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
-:root{--bg:#f8fafc;--surface:#ffffff;--border:#e2e8f0;--text:#1e293b;--text-dim:#64748b;--text-faint:#94a3b8;
---accent:#d97757;--accent-soft:#fdf1ec;--ok:#16a34a;--warn:#b45309;--bad:#dc2626;--code-bg:#f1f5f9}
-[data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--text-dim:#94a3b8;--text-faint:#64748b;
---accent:#e08a6d;--accent-soft:#3a2a23;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code-bg:#0b1220}
+/* 토스(TDS) 문법: 회색 바닥 + 흰 카드, 테두리·그림자 없음, 파랑 하나 */
+:root{--ground:#F2F4F6;--surface:#FFFFFF;--ink:#191F28;--muted:#6B7684;--faint:#8B95A1;
+--fill:#F2F4F6;--fill2:#E5E8EB;--accent:#3182F6;--accent-soft:#E8F3FF;
+--rec:#F04452;--rec-soft:#FDEDEE;--gold:#A66C00;--gold-soft:#FFF6DE}
+:root[data-theme="dark"]{--ground:#111114;--surface:#1E1E23;--ink:#ECECEE;--muted:#9B9BA3;--faint:#6E6E76;
+--fill:#2A2A31;--fill2:#37373F;--accent:#4593FC;--accent-soft:#1E3352;
+--rec:#F2757F;--rec-soft:#3A2226;--gold:#E0A94E;--gold-soft:#2E2718}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.6 'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif}
-main{max-width:960px;margin:0 auto;padding:24px 16px}
+body{margin:0;background:var(--ground);color:var(--ink);word-break:keep-all;
+font:400 15px/1.65 'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif}
+main{max-width:880px;margin:0 auto;padding:32px 16px 64px;display:grid;gap:16px}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px}
-h1{font-size:24px;font-weight:700;margin:0}
-.sum{color:var(--text-dim);font-size:13px;margin:8px 0 16px}
-button{font:inherit;font-size:13px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:4px 12px;cursor:pointer}
-button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-details{background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:8px}
-summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+h1{font-size:22px;font-weight:700;margin:0}
+h2{font-size:17px;font-weight:700;margin:0 0 16px}
+.card{background:var(--surface);border-radius:20px;padding:28px 24px}
+button{font:inherit;font-size:13px;font-weight:600;border:none;border-radius:12px;padding:8px 16px;cursor:pointer;
+background:var(--fill);color:var(--ink);transition:background 180ms ease-out,transform 120ms ease-out}
+button:hover{background:var(--fill2)}button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 24px}
+.big{font-size:32px;font-weight:700;line-height:1.2;color:var(--accent)}
+.label{font-size:13px;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border-radius:100px;padding:4px 12px;font-size:13px;font-weight:600;background:var(--fill);color:var(--muted)}
+.group{font-size:13px;font-weight:600;color:var(--muted);margin:16px 0 8px}.group:first-of-type{margin-top:0}
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+a.doc{display:block;text-decoration:none;color:inherit;background:var(--fill);border-radius:14px;padding:16px;
+transition:background 180ms ease-out,transform 120ms ease-out}
+a.doc:hover{background:var(--fill2)}a.doc:active{transform:scale(.97)}
+.doc b{display:block;font-size:15px;font-weight:600}
+.doc span{display:block;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.doc.missing{background:var(--rec-soft)}.doc.missing span{color:var(--rec)}
+.list{display:grid;gap:8px}
+details{background:var(--surface);border-radius:20px}
+summary{list-style:none;cursor:pointer;padding:20px 24px;display:grid;gap:8px;border-radius:20px}
 summary::-webkit-details-marker{display:none}
-.name{font-weight:600;font-size:15px;flex:1 1 240px;overflow-wrap:anywhere}
-.meta{color:var(--text-dim);font-size:13px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
+.name{font-weight:600;flex:1 1 240px;overflow-wrap:anywhere}
+.pct{font-weight:700}
+.bar{height:8px;border-radius:100px;background:var(--fill2);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:100px;background:var(--accent)}
+.meta{font-size:13px;color:var(--faint)}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{font-size:13px;font-weight:600;border:1px solid currentColor;border-radius:6px;padding:0 8px}
-.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.na{color:var(--text-faint)}
-.badge{font-size:13px;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:0 8px}
-.gaps{border-top:1px solid var(--border);padding:12px 16px;display:grid;gap:12px}
-.gap p{margin:0}.why{color:var(--text-dim);font-size:13px}
-.cmd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
-.cmd button{border-color:var(--accent);color:var(--accent)}
-code{background:var(--code-bg);border-radius:6px;padding:0 4px;font-size:13px;overflow-wrap:anywhere}
-.empty{color:var(--text-dim)}
-h2{font-size:18px;font-weight:600;margin:24px 0 8px}
-.excl{color:var(--text-dim);font-size:13px;margin:0;padding-left:16px}
+.chip{border-radius:100px;padding:0 8px;font-size:13px;font-weight:600}
+.ok{background:var(--accent-soft);color:var(--accent)}.warn{background:var(--gold-soft);color:var(--gold)}
+.bad{background:var(--rec-soft);color:var(--rec)}.na{background:var(--fill);color:var(--faint)}
+.badge{border-radius:100px;padding:0 8px;font-size:13px;font-weight:600;background:var(--gold-soft);color:var(--gold)}
+.gaps{padding:0 24px 24px;display:grid;gap:8px}
+.gap{background:var(--fill);border-radius:14px;padding:16px}
+.gap p{margin:0}.gap .t{font-weight:600}.why{color:var(--muted);font-size:13px;margin:4px 0 8px!important}
+.cmd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.cmd button{background:var(--accent);color:#FFFFFF}.cmd button:hover{background:var(--accent)}
+code{background:var(--surface);border-radius:8px;padding:4px 8px;font-size:13px;overflow-wrap:anywhere}
+.empty{color:var(--muted);margin:0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.excl{color:var(--muted);font-size:13px;margin:0;padding-left:16px}
 </style></head><body><main>
-<header><h1>위키 채움 상태</h1><button id="theme" type="button">☀︎ 라이트</button></header>
+<header><h1>위키를 얼마나 채웠는지 볼게요</h1><button id="theme" type="button">다크 모드</button></header>
 __BODY__
 </main><script>
 (function(){var root=document.documentElement,btn=document.getElementById('theme');
 try{var s=localStorage.getItem('status-theme');if(s==='dark'||s==='light')root.setAttribute('data-theme',s);}catch(e){}
-function label(){btn.textContent=root.getAttribute('data-theme')==='dark'?'☾ 다크':'☀︎ 라이트';}
+function label(){btn.textContent=root.getAttribute('data-theme')==='dark'?'라이트 모드':'다크 모드';}
 label();btn.addEventListener('click',function(){var n=root.getAttribute('data-theme')==='dark'?'light':'dark';
 root.setAttribute('data-theme',n);try{localStorage.setItem('status-theme',n);}catch(e){}label();});
 document.querySelectorAll('button[data-cmd]').forEach(function(b){b.addEventListener('click',function(){
 var c=b.getAttribute('data-cmd'),show=function(){b.nextElementSibling.hidden=false;};
-if(navigator.clipboard){navigator.clipboard.writeText(c).then(function(){b.textContent='복사됨';},show);}else{show();}});});})();
+if(navigator.clipboard){navigator.clipboard.writeText(c).then(function(){b.textContent='복사했어요';},show);}else{show();}});});})();
 </script></body></html>
 """
+
+
+def render_docs(wiki):
+    """<wiki>/.status/docs.json의 서류 목록을 카드로. [{"group","label","path"}], 상대 경로는 위키 기준"""
+    f = wiki / ".status" / "docs.json"
+    if not f.exists():
+        return ""
+    esc, out, last = html.escape, ['<section class="card"><h2>내 서류</h2>'], None
+    for d in json.loads(f.read_text(encoding="utf-8")):
+        if d.get("group") != last:
+            if last is not None:
+                out.append("</div>")
+            last = d.get("group")
+            out.append(f'<div class="group">{esc(last or "")}</div><div class="docs">')
+        p = (wiki / d["path"]).resolve()
+        if p.exists():
+            out.append(f'<a class="doc" href="{esc(p.as_uri())}" target="_blank" rel="noopener">'
+                       f'<b>{esc(d["label"])}</b><span>{esc(p.name)}</span></a>')
+        else:
+            out.append(f'<div class="doc missing"><b>{esc(d["label"])}</b><span>파일을 찾을 수 없어요 · {esc(d["path"])}</span></div>')
+    return "".join(out) + "</div></section>" if len(out) > 1 else ""
 
 
 def render(wiki):
@@ -206,31 +254,44 @@ def render(wiki):
     vals = [p for p in (pct(e) for _, e, _ in scored) if p is not None]
     out = []
     if not scored and not excluded:
-        out.append('<p class="empty">아직 채점한 문서가 없습니다. /chwijun-copilot:status 를 실행하세요</p>')
+        out.append('<section class="card"><p class="empty">아직 채점한 문서가 없어요. '
+                   '/chwijun-copilot:status 를 실행해 주세요</p></section>')
     else:
         avg = f"{sum(vals) / len(vals):.1f}%" if vals else "—"
-        out.append(f'<p class="sum">채점 문서 {len(scored)}개 · 평균 채움률 {avg} · '
-                   f'채점 후 수정됨 {sum(s for *_, s in scored + excluded)}개 · 제외 {len(excluded)}개</p>')
+        stale_n = sum(s for *_, s in scored + excluded)
+        out.append(f'<section class="card hero"><div><div class="label">평균 채움률</div><div class="big">{avg}</div></div>'
+                   f'<div class="stats"><span class="pill">채점 문서 {len(scored)}개</span>'
+                   f'<span class="pill">채점 후 수정됨 {stale_n}개</span><span class="pill">제외 {len(excluded)}개</span></div></section>')
+    out.append(render_docs(wiki))
+    if scored:
+        out.append('<section class="list"><div class="legend"><span>칸 판정</span><span class="chip ok">충분함</span>'
+                   '<span class="chip warn">부족함</span><span class="chip bad">비어 있음</span>'
+                   '<span class="chip na">한계 명시</span><span>· 낮은 순</span></div>')
     for key, e, stale in scored:
-        chips = "".join(f'<span class="chip {STATE[c]}" title="{cell} {CELL_NAMES[i]}">{cell} {c}</span>'
+        chips = "".join(f'<span class="chip {STATE[c]}" title="{cell} {CELL_NAMES[i]}">{cell}</span>'
                         for i, (cell, c) in enumerate(zip(CELLS, e["cells"])))
         badge = '<span class="badge">채점 후 수정됨</span>' if stale else ""
+        p = pct(e)
         gaps = []
         for i, r in enumerate(e["rows"]):
             if e["cells"][i] not in "부비":
                 continue
             cmd = esc(f"/chwijun-copilot:status {key} {r['cell']}")
-            gaps.append(f'<div class="gap"><p><b>{r["cell"]} {CELL_NAMES[i]}</b> — {esc(r["verdict"])}</p>'
+            gaps.append(f'<div class="gap"><p class="t">{r["cell"]} {CELL_NAMES[i]} · {esc(r["verdict"])}</p>'
                         f'<p class="why">{esc(r["why"])}</p><p>{esc(r["ask"])}</p>'
-                        f'<div class="cmd"><button type="button" data-cmd="{cmd}">명령어 복사</button>'
+                        f'<div class="cmd"><button type="button" data-cmd="{cmd}">명령어 복사하기</button>'
                         f'<code hidden>{cmd}</code></div></div>')
-        out.append(f'<details><summary><span class="name">{esc(key)}</span>{badge}'
-                   f'<span class="meta">{esc(e["type"])} · {esc(fill_text(e["cells"]))} · 채점 {esc(e.get("scored_at", ""))}</span>'
-                   f'<span class="chips">{chips}</span></summary>'
-                   f'<div class="gaps">{"".join(gaps) or "<p>부족한 칸이 없습니다.</p>"}</div></details>')
+        out.append(f'<details><summary><div class="row"><span class="name">{esc(key)}</span>{badge}'
+                   f'<span class="pct">{"—" if p is None else f"{p:.0f}%"}</span></div>'
+                   f'<div class="bar"><i style="width:{p or 0:.1f}%"></i></div>'
+                   f'<div class="row"><span class="chips">{chips}</span>'
+                   f'<span class="meta">{esc(e["type"])} · {esc(fill_text(e["cells"]))} · 채점 {esc(e.get("scored_at", ""))}</span></div>'
+                   f'</summary><div class="gaps">{"".join(gaps) or "<p>부족한 칸이 없어요.</p>"}</div></details>')
+    if scored:
+        out.append("</section>")
     if excluded:
-        out.append(f'<h2>채점 제외 {len(excluded)}개</h2><ul class="excl">'
-                   + "".join(f'<li>{esc(k)} — {esc(e.get("reason", ""))}</li>' for k, e, _ in excluded) + "</ul>")
+        out.append(f'<section class="card"><h2>채점에서 뺀 문서 {len(excluded)}개</h2><ul class="excl">'
+                   + "".join(f'<li>{esc(k)} — {esc(e.get("reason", ""))}</li>' for k, e, _ in excluded) + "</ul></section>")
     path = wiki / ".status" / "index.html"
     path.parent.mkdir(exist_ok=True)
     path.write_text(PAGE.replace("__BODY__", "\n".join(out)), encoding="utf-8")
