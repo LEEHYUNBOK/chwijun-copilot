@@ -326,6 +326,30 @@ def render_skills(wiki):
                 f'{esc(repr(err))}. [{{"group","axis","name","card","proof","state"}}] 형식인지 확인해 주세요</p></section>')
 
 
+def render_coverage(wiki):
+    """<wiki>/.status/coverage.json — 트랙별 JD 키워드 커버율. [{"track","total","card","evidence","gaps":[..]}]"""
+    f = wiki / ".status" / "coverage.json"
+    if not f.exists():
+        return ""
+    esc = html.escape
+    try:
+        out = ['<section class="card"><h2>JD 키워드 커버율</h2>'
+               '<p class="meta">공고에 3번 이상 나온 키워드 중 카드(면접 에피소드)나 기록 근거가 있는 비율</p>']
+        for t in json.loads(f.read_text(encoding="utf-8")):
+            n, c, e = t["total"], t["card"], t["evidence"]
+            out.append(f'<div class="group">{esc(t["track"])} · 키워드 {n}개</div>')
+            for label, k in (("카드로 커버", c), ("카드 + 기록 근거", c + e)):
+                p = k / n * 100 if n else 0
+                out.append(f'<div class="skrow"><div class="row"><span class="name">{label}</span>'
+                           f'<span class="pct">{k}/{n} · {p:.0f}%</span></div><div class="bar"><i style="width:{p:.0f}%"></i></div></div>')
+            gaps = "".join(f'<span class="chip bad">{esc(g)}</span>' for g in t.get("gaps", []))
+            out.append(f'<div class="chips">{gaps}</div>' if gaps else "")
+        return "".join(out) + "</section>"
+    except (ValueError, KeyError, TypeError, AttributeError) as err:
+        return (f'<section class="card"><h2>JD 키워드 커버율</h2><p class="empty">coverage.json을 읽을 수 없어요: '
+                f'{esc(repr(err))}</p></section>')
+
+
 def render(wiki):
     esc = html.escape
     files = wiki_docs(wiki)
@@ -349,6 +373,7 @@ def render(wiki):
                    f'<div class="stats"><span class="pill">채점 문서 {len(scored)}개</span>'
                    f'<span class="pill">채점 후 수정됨 {stale_n}개</span><span class="pill">제외 {len(excluded)}개</span></div></section>')
     out.append(render_skills(wiki))
+    out.append(render_coverage(wiki))
     out.append(render_docs(wiki))
     if scored:
         out.append('<section class="list"><div class="legend"><span>칸 판정</span><span class="chip ok">충분함</span>'

@@ -135,6 +135,14 @@ grep -q '<i>캐시' "$H" && { echo "FAIL: 역량 이스케이프"; fail=1; }
 printf '{bad' > "$W/.status/skills.json"
 python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'skills.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 skills.json"; fail=1; }
 rm "$W/.status/skills.json"
+# JD 커버율: 비율·빈칸 칩·깨진 파일
+printf '[{"track":"백엔드","total":4,"card":1,"evidence":2,"gaps":["<b>K8s"]}]' > "$W/.status/coverage.json"
+python3 status.py render "$W" >/dev/null
+grep -q '1/4 · 25%' "$H" && grep -q '3/4 · 75%' "$H" || { echo "FAIL: JD 커버율"; fail=1; }
+grep -q '<b>K8s' "$H" && { echo "FAIL: 커버율 이스케이프"; fail=1; }
+printf '{bad' > "$W/.status/coverage.json"
+python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'coverage.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 coverage.json"; fail=1; }
+rm "$W/.status/coverage.json"
 for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('doc =','$d =').replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
 echo changed > "$W/a.md"; rm "$W/b.md"
 python3 - "$W" <<'PY'
