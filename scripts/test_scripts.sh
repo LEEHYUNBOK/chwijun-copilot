@@ -125,6 +125,24 @@ grep -q '<b>포폴' "$H" && { echo "FAIL: 서류 라벨 이스케이프"; fail=1
 printf '{bad' > "$W/.status/docs.json"
 python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'docs.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 docs.json"; fail=1; }
 rm "$W/.status/docs.json" "$W/이력서.html"
+# 역량 카드: skills.json 상태 집계·이스케이프·깨진 파일
+grep -q '내 역량' "$H" && { echo "FAIL: skills.json 없는데 역량 절이 나옴"; fail=1; }
+printf '[{"group":"핵심","axis":"문제해결","name":"<i>캐시</i>","card":"c","proof":"p","state":"ok"},{"group":"핵심","axis":"협업","name":"합의","card":"c","proof":"p","state":"bad","gap":"결과 없음","checks":[1,1,0,0]}]' > "$W/.status/skills.json"
+python3 status.py render "$W" >/dev/null
+grep -q '평균 근거 점수' "$H" && grep -q '>50점<' "$H" || { echo "FAIL: 역량 근거 점수"; fail=1; }
+grep -q '내 역량 2개' "$H" && grep -q '근거 확인 1' "$H" && grep -q '빈 곳: 결과 없음' "$H" || { echo "FAIL: 역량 카드"; fail=1; }
+grep -q '<i>캐시' "$H" && { echo "FAIL: 역량 이스케이프"; fail=1; }
+printf '{bad' > "$W/.status/skills.json"
+python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'skills.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 skills.json"; fail=1; }
+rm "$W/.status/skills.json"
+# JD 커버율: 비율·빈칸 칩·깨진 파일
+printf '[{"track":"백엔드","total":4,"card":1,"evidence":2,"gaps":["<b>K8s"]}]' > "$W/.status/coverage.json"
+python3 status.py render "$W" >/dev/null
+grep -q '1/4 · 25%' "$H" && grep -q '3/4 · 75%' "$H" || { echo "FAIL: JD 커버율"; fail=1; }
+grep -q '<b>K8s' "$H" && { echo "FAIL: 커버율 이스케이프"; fail=1; }
+printf '{bad' > "$W/.status/coverage.json"
+python3 status.py render "$W" >/dev/null 2>&1 && grep -q 'coverage.json을 읽을 수 없어요' "$H" || { echo "FAIL: 깨진 coverage.json"; fail=1; }
+rm "$W/.status/coverage.json"
 for d in a b c; do echo "$d" > "$W/$d.md"; python3 -c "import status; print(status.SAMPLE_OK.replace('doc =','$d =').replace('충,부,충,부,비,충,충','충,부,충,부,부,부,부').replace('| C5 | 비어 있음','| C5 | 부족함').replace('| C6 | 충분함 | 「배경」 | - | - |','| C6 | 부족함 | 「배경」 | 규모 없음 | 규모는? |').replace('| C7 | 충분함 | 「표현 기준」 | - | - |','| C7 | 부족함 | 「표현 기준」 | 결정 없음 | 결정은? |'))" > "$W/r.md"; python3 status.py record "$W" $d.md "$W/r.md" >/dev/null || { echo "FAIL: render 준비 record $d"; fail=1; }; done
 echo changed > "$W/a.md"; rm "$W/b.md"
 python3 - "$W" <<'PY'

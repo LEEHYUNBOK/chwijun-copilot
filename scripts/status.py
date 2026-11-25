@@ -210,6 +210,9 @@ a.doc:hover{background:var(--fill2)}a.doc:active{transform:scale(.97)}
 .doc b{display:block;font-size:15px;font-weight:600}
 .doc span{display:block;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .doc.missing{background:var(--rec-soft)}.doc.missing span{color:var(--rec)}
+.doc.skill{background:var(--fill);border-radius:14px;padding:16px}.doc.skill p{margin:6px 0 0;font-size:14px}
+.doc.skill .chip{display:inline-block;margin-bottom:6px}
+.sk-hero{margin:20px 0 8px}.skrow{display:grid;gap:6px;padding:10px 0}.skrow+.group{margin-top:24px}
 .list{display:grid;gap:8px}
 details{background:var(--surface);border-radius:20px}
 summary{list-style:none;cursor:pointer;padding:20px 24px;display:grid;gap:8px;border-radius:20px}
@@ -279,6 +282,74 @@ def _docs_cards(wiki, items):
     return "".join(out) + "</div></section>" if len(out) > 1 else ""
 
 
+SKILL_STATE = {"ok": "근거 확인", "warn": "본인 진술", "bad": "빈칸"}
+CHECKS = ("기록", "수치", "주도", "완결")  # 근거 기록 있음 · 수치 있음 · 본인이 했다는 근거 · 빈 곳 없음
+
+
+def render_skills(wiki):
+    """<wiki>/.status/skills.json의 역량 카드. [{"group","axis","name","card","proof","state":ok|warn|bad,"gap"?,"path"?}]"""
+    f = wiki / ".status" / "skills.json"
+    if not f.exists():
+        return ""
+    esc = html.escape
+    try:
+        items = json.loads(f.read_text(encoding="utf-8"))
+        n = {s: sum(d["state"] == s for d in items) for s in SKILL_STATE}
+        out = [f'<section class="card"><h2>내 역량 {len(items)}개</h2><div class="chips">'
+               + "".join(f'<span class="chip {s}">{SKILL_STATE[s]} {n[s]}</span>' for s in SKILL_STATE) + "</div>"]
+        scored = [(d, sum(map(bool, d["checks"])) / len(CHECKS) * 100) for d in items if "checks" in d]
+        if scored:
+            avg = sum(p for _, p in scored) / len(scored)
+            out.append(f'<div class="hero sk-hero"><div><div class="label">평균 근거 점수</div><div class="big">{avg:.0f}점</div></div>'
+                       f'<p class="meta">카드마다 {" · ".join(CHECKS)} 4가지를 확인해 하나당 25점</p></div>')
+            for d, p in scored:
+                ticks = "".join(f'<span class="chip {"ok" if v else "na"}">{"✓" if v else "✗"} {c}</span>'
+                                for c, v in zip(CHECKS, d["checks"]))
+                tip = esc(", ".join(f"{c} {'있음' if v else '없음'}" for c, v in zip(CHECKS, d["checks"])))
+                out.append(f'<div class="skrow" title="{tip}"><div class="row"><span class="name">{esc(d["axis"])} · {esc(d["name"])}</span>'
+                           f'<span class="pct">{p:.0f}점</span></div><div class="bar"><i style="width:{p:.0f}%"></i></div>'
+                           f'<div class="chips">{ticks}</div></div>')
+        last = None
+        for d in items:
+            if d.get("group") != last:
+                out.append(("</div>" if last is not None else "") + f'<div class="group">{esc(d.get("group") or "")}</div><div class="docs">')
+                last = d.get("group")
+            p = (wiki / d["path"]).resolve() if d.get("path") else None
+            tag, href = ("a", f' href="{esc(p.as_uri())}" target="_blank" rel="noopener"') if p and p.exists() else ("div", "")
+            gap = f'<p class="why">빈 곳: {esc(d["gap"])}</p>' if d.get("gap") else ""
+            out.append(f'<{tag} class="doc skill"{href}><span class="chip {d["state"]}">{SKILL_STATE[d["state"]]}</span>'
+                       f'<span>{esc(d["axis"])}</span><b>{esc(d["name"])}</b><p>{esc(d["card"])}</p>'
+                       f'<p class="why">{esc(d["proof"])}</p>{gap}</{tag}>')
+        return "".join(out) + "</div></section>"
+    except (ValueError, KeyError, TypeError, AttributeError) as err:
+        return (f'<section class="card"><h2>내 역량</h2><p class="empty">skills.json을 읽을 수 없어요: '
+                f'{esc(repr(err))}. [{{"group","axis","name","card","proof","state"}}] 형식인지 확인해 주세요</p></section>')
+
+
+def render_coverage(wiki):
+    """<wiki>/.status/coverage.json — 트랙별 JD 키워드 커버율. [{"track","total","card","evidence","gaps":[..]}]"""
+    f = wiki / ".status" / "coverage.json"
+    if not f.exists():
+        return ""
+    esc = html.escape
+    try:
+        out = ['<section class="card"><h2>JD 키워드 커버율</h2>'
+               '<p class="meta">공고에 3번 이상 나온 키워드 중 카드(면접 에피소드)나 기록 근거가 있는 비율</p>']
+        for t in json.loads(f.read_text(encoding="utf-8")):
+            n, c, e = t["total"], t["card"], t["evidence"]
+            out.append(f'<div class="group">{esc(t["track"])} · 키워드 {n}개</div>')
+            for label, k in (("카드로 커버", c), ("카드 + 기록 근거", c + e)):
+                p = k / n * 100 if n else 0
+                out.append(f'<div class="skrow"><div class="row"><span class="name">{label}</span>'
+                           f'<span class="pct">{k}/{n} · {p:.0f}%</span></div><div class="bar"><i style="width:{p:.0f}%"></i></div></div>')
+            gaps = "".join(f'<span class="chip bad">{esc(g)}</span>' for g in t.get("gaps", []))
+            out.append(f'<div class="chips">{gaps}</div>' if gaps else "")
+        return "".join(out) + "</section>"
+    except (ValueError, KeyError, TypeError, AttributeError) as err:
+        return (f'<section class="card"><h2>JD 키워드 커버율</h2><p class="empty">coverage.json을 읽을 수 없어요: '
+                f'{esc(repr(err))}</p></section>')
+
+
 def render(wiki):
     esc = html.escape
     files = wiki_docs(wiki)
@@ -301,6 +372,8 @@ def render(wiki):
         out.append(f'<section class="card hero"><div><div class="label">평균 채움률</div><div class="big">{avg}</div></div>'
                    f'<div class="stats"><span class="pill">채점 문서 {len(scored)}개</span>'
                    f'<span class="pill">채점 후 수정됨 {stale_n}개</span><span class="pill">제외 {len(excluded)}개</span></div></section>')
+    out.append(render_skills(wiki))
+    out.append(render_coverage(wiki))
     out.append(render_docs(wiki))
     if scored:
         out.append('<section class="list"><div class="legend"><span>칸 판정</span><span class="chip ok">충분함</span>'

@@ -15,6 +15,8 @@ description: Use when 위키가 얼마나 채워졌는지·뭐가 부족한지 �
 - **둘 다 없으면 `status.py`를 포함해 아무 명령도 실행하지 않는다.** 현재 폴더나 짐작한 폴더를 위키로 쓰지 않는다. `/chwijun-copilot:wiki-bootstrap` 온보딩과 `--wiki <경로>` 사용법을 안내하고 중단한다.
 - 데이터는 `<wiki_path>/.status/`(scores.json·index.html)에만 쓴다.
 - 대시보드 첫 화면에 이력서·포트폴리오 카드를 띄우려면 사용자가 `<wiki_path>/.status/docs.json`에 `[{"group", "label", "path"}]`를 둔다(상대 경로는 위키 기준). 없으면 카드 절은 나오지 않는다. 만들어 달라고 하면 파일 목록을 보여주고 확인받은 뒤 쓴다.
+- 역량 카드는 `<wiki_path>/.status/skills.json`에 `[{"group", "axis", "name", "card", "proof", "state": "ok|warn|bad", "gap"?, "path"?, "checks"?: [기록, 수치, 주도, 완결]}]`를 두면 나온다. `checks`가 있으면 카드마다 근거 점수(하나당 25점)와 막대가 그려진다. 사용자가 말하지 않은 근거로 체크를 채우지 않는다.
+- JD 키워드 커버율은 `<wiki_path>/.status/coverage.json`에 `[{"track", "total", "card", "evidence", "gaps": [..]}]`를 두면 트랙별 막대로 나온다(카드로 커버 / 카드+기록 근거, 빈칸 키워드 칩).
 
 ## 1. 원칙
 
